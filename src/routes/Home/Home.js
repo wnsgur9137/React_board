@@ -15,6 +15,7 @@ import Footer from '../../layout/Footer';
 import post1 from './blog-post.1.md';
 import post2 from './blog-post.2.md';
 import post3 from './blog-post.3.md';
+import SidebarContents from "./SidebarContents";
 
 const sections = [
     { title: 'Technology', url: '#' },
@@ -101,7 +102,7 @@ export default function Blog() {
                     </Grid>
                     <Grid container spacing={5} sx={{ mt: 3 }}>
                         <Main title="From the firehose" posts={posts} />
-                        <Sidebar
+                        <SidebarContents
                             title={sidebar.title}
                             description={sidebar.description}
                             archives={sidebar.archives}

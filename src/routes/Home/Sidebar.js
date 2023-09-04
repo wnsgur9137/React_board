@@ -1,66 +1,61 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import Grid from '@mui/material/Grid';
-import Stack from '@mui/material/Stack';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-import Link from '@mui/material/Link';
+import React, { useEffect, useRef, useState } from "react";
+import styles from "./css/sidebar.module.css";
 
-function Sidebar(props) {
-    const { archives, description, social, title } = props;
+const Sidebar = ({ width=280, children }) => {
+    const [isOpen, setOpen] = useState(false);
+    const [xPosition, setX] = useState(width);
+    const [scrollPosition, setScrollPosition] = useState(0);
+    const side = useRef();
+
+    const updateScroll = () => {
+        setScrollPosition(window.scrollY || document.documentElement.scrollTop);
+    };
+
+    useEffect(() => {
+        window.addEventListener("scroll", updateScroll);
+    }, []);
+
+    // button toggle action
+    const toggleMenu = () => {
+        if (xPosition > 0) {
+            setX(0);
+            setOpen(true);
+        } else {
+            setX(width);
+            setOpen(false);
+        }
+    };
+
+    // close action
+    const handleClose = async e => {
+        let sideArea = side.current;
+        let sideChildren = side.current.contains(e.target);
+        if (isOpen && (!sideArea || !sideChildren)) {
+            await setX(width);
+            await setOpen(false);
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('click', handleClose);
+        return () => {
+            window.removeEventListener('click', handleClose);
+        };
+    })
 
     return (
-        <Grid item xs={12} md={4}>
-            <Paper elevation={0} sx={{ p: 2, bgcolor: 'grey.200' }}>
-                <Typography variant="h6" gutterBottom>
-                    {title}
-                </Typography>
-                <Typography>{description}</Typography>
-            </Paper>
-            <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-                Archives
-            </Typography>
-            {archives.map((archive) => (
-                <Link display="block" variant="body1" href={archive.url} key={archive.title}>
-                    {archive.title}
-                </Link>
-            ))}
-            <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-                Social
-            </Typography>
-            {social.map((network) => (
-                <Link
-                    display="block"
-                    variant="body1"
-                    href="#"
-                    key={network.name}
-                    sx={{ mb: 0.5 }}
-                >
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <network.icon />
-                        <span>{network.name}</span>
-                    </Stack>
-                </Link>
-            ))}
-        </Grid>
+        <div className={styles.container}>
+            <div ref={side}  className={styles.sidebar} style={{ width: `${width}px`, height: '100%',  transform: `translatex(${-xPosition}px)`}}>
+                <button onClick={() => toggleMenu()}
+                        className={styles.button} style={{ top: scrollPosition > 100 ? 10 : 60 }} >
+                    {isOpen ?
+                        <span>X</span> : <img src="/src/Images/listBullet.png" alt="contact open button" className={styles.openBtn}/>
+                    }
+                </button>
+                <div className={styles.content}>{children}</div>
+            </div>
+        </div>
     );
-}
-
-Sidebar.propTypes = {
-    archives: PropTypes.arrayOf(
-        PropTypes.shape({
-            title: PropTypes.string.isRequired,
-            url: PropTypes.string.isRequired,
-        }),
-    ).isRequired,
-    description: PropTypes.string.isRequired,
-    social: PropTypes.arrayOf(
-        PropTypes.shape({
-            icon: PropTypes.elementType,
-            name: PropTypes.string.isRequired,
-        }),
-    ).isRequired,
-    title: PropTypes.string.isRequired,
 };
 
 export default Sidebar;
