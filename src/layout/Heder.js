@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import Typography from '@mui/material/Typography';
-import Link from '@mui/material/Link';
+// import Link from '@mui/material/Link';
 import Sidebar from "../routes/Home/Sidebar";
 import SidebarContents from "../routes/Home/SidebarContents";
 import GitHubIcon from "@mui/icons-material/GitHub";
@@ -39,7 +39,7 @@ const sidebar = {
 
 function Header(props) {
     const navigate = useNavigate()
-    const { sections, title } = props;
+    // const { sections, title } = props;
 
     const moveToSignUp = () => {
         navigate('/signUp');
@@ -50,6 +50,10 @@ function Header(props) {
             <Toolbar sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 {/*<Button size="small">Subscribe</Button>*/}
                 <Sidebar width={320}>
+                    <Button variant="outlined" size="small" onClick={moveToSignUp}>
+                        Sign in
+                    </Button>
+                    <hr />
                     <SidebarContents
                         title={sidebar.title}
                         description={sidebar.description}
