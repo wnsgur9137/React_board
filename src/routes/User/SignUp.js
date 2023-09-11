@@ -41,41 +41,17 @@ export default function SignUp() {
 
     const handleSubmit = async(event) => {
         event.preventDefault();
-        // const data = new FormData(event.currentTarget);
-        // console.log({
-        //     nickname: data.get('nickname'),
-        //     email: data.get('email'),
-        //     password: data.get('password'),
-        // });
-        console.log({
-            email: email,
-            emailType: email.type,
-            nickname: nickname,
-            nicknameType: nickname.type,
-            password: password,
-            passwordType: password.type,
-        });
 
         try {
-            // await axios({
-            //     method: "post",
-            //     url: "/reactBoard/users/signup",
-            //     data: {
-            //         email: email,
-            //         nickname: nickname,
-            //         password: password
-            //     },
-            // }).then((response) => {
-            //     console.log(response.data);
-            //     console.log(response.status);
-            //     console.log(response.statusText);
-            //     console.log(response.headers);
-            //     console.log(response.config);
-            //     alert('등록되었습니다.');
-            //     moveToSignIn();
-            // });
-
-            await axios.post(`/reactBoard/users/signup?email=${email}&nickname=${nickname}&password=${password}`).then(function (response) {
+            await axios({
+                method: "post",
+                url: "/reactBoard/users/signup",
+                data: {
+                    email: email,
+                    nickname: nickname,
+                    password: password
+                },
+            }).then((response) => {
                 console.log(response.data);
                 console.log(response.status);
                 console.log(response.statusText);
@@ -90,7 +66,7 @@ export default function SignUp() {
     };
 
     const onChangeSignUpInformation = (event) => {
-        console.log(event.target.value)
+        // console.log(event.target.value)
         setSignUpInformation({
             ...signUpInformation,
             [event.target.name]: event.target.value,

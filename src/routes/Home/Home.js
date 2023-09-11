@@ -13,8 +13,10 @@ import post1 from './blog-post.1.md';
 import post2 from './blog-post.2.md';
 import post3 from './blog-post.3.md';
 import SidebarContents from "./SidebarContents";
+import {useEffect, useState} from "react";
+import axios from "axios";
 
-const mainFeaturedPost = {
+const defaultMainFeaturedPost = {
     title: 'Title of a longer featured blog post',
     description:
         "Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents.",
@@ -23,7 +25,7 @@ const mainFeaturedPost = {
     linkText: 'Continue reading…',
 };
 
-const featuredPosts = [
+const defaultFeaturedPosts = [
     {
         title: 'Featured post',
         date: 'Nov 12',
@@ -72,12 +74,50 @@ const sidebar = {
 const defaultTheme = createTheme();
 
 export default function Blog() {
+    const [mainFeaturedPost, setMainFeaturedPost] = useState(defaultMainFeaturedPost);
+    const [featuredPosts, setFeaturedPosts] = useState(defaultFeaturedPosts)
+
+    const loadBoards = async () => {
+        // return
+        await axios({
+            method: "get",
+            url: "/reactBoard/boards/main"
+        }).then((response) => {
+
+            mainFeaturedPost.title = ''
+            mainFeaturedPost.description = ''
+            // mainFeaturedPost.image = ''
+            mainFeaturedPost.linkText = 'Continue reading...'
+
+            for (var index = 1; index < 3; index++) {
+                featuredPosts[index].date = ''
+                featuredPosts[index].title = ''
+                featuredPosts[index].description = ''
+                // featuredPosts[index].image =
+                // featuredPosts[index].imageLabel = ''
+            }
+        }).catch(error => {
+            setMainFeaturedPost({
+                title: '으아아아아아아 of a longer featured blog post',
+                    description:
+                "Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents.",
+                    image: 'https://source.unsplash.com/random?wallpapers',
+                imageText: 'main image description',
+                linkText: 'Continue reading…',
+            });
+        });
+    };
+
+    useEffect(() => {
+        loadBoards();
+    }, []);
+
     return (
         <ThemeProvider theme={defaultTheme}>
             <CssBaseline />
             <Container maxWidth="lg">
                 <main>
-                    <MainFeaturedPost post={mainFeaturedPost} />
+                    <MainFeaturedPost id="mainFeaturedPostComponent" post={mainFeaturedPost} />
                     <Grid container spacing={4}>
                         {featuredPosts.map((post) => (
                             <FeaturedPost key={post.title} post={post} />
@@ -97,15 +137,3 @@ export default function Blog() {
         </ThemeProvider>
     );
 }
-
-// import React from 'react';
-//
-// const Home = () => {
-//     return (
-//         <div>
-//             Home
-//         </div>
-//     );
-// };
-//
-// export default Home;
