@@ -17,6 +17,7 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 
 const defaultMainFeaturedPost = {
+    boardID: 0,
     title: 'Title of a longer featured blog post',
     description:
         "Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents.",
@@ -27,6 +28,7 @@ const defaultMainFeaturedPost = {
 
 const defaultFeaturedPosts = [
     {
+        boardID: 0,
         title: 'Featured post',
         date: 'Nov 12',
         description:
@@ -35,6 +37,7 @@ const defaultFeaturedPosts = [
         imageLabel: 'Image Text',
     },
     {
+        boardID: 1,
         title: 'Post title',
         date: 'Nov 11',
         description:
@@ -83,27 +86,40 @@ export default function Blog() {
             method: "get",
             url: "/reactBoard/boards/main"
         }).then((response) => {
-
-            mainFeaturedPost.title = ''
-            mainFeaturedPost.description = ''
-            // mainFeaturedPost.image = ''
-            mainFeaturedPost.linkText = 'Continue reading...'
-
-            for (var index = 1; index < 3; index++) {
-                featuredPosts[index].date = ''
-                featuredPosts[index].title = ''
-                featuredPosts[index].description = ''
-                // featuredPosts[index].image =
-                // featuredPosts[index].imageLabel = ''
+            console.log(response.data);
+            const jsonArray = response.data;
+            const test = []
+            for (var i = 0; i < 3; i++) {
+                if (i === 0) {
+                    setMainFeaturedPost({
+                        boardID: jsonArray[0].boardID,
+                        title: jsonArray[0].title,
+                        description: jsonArray[0].contents,
+                        image: 'https://source.unsplash.com/random?wallpapers',
+                        imageText: 'main image description',
+                        linkText: 'Continue reading...'
+                    });
+                } else {
+                    test.push({
+                        boardID: jsonArray[i].boardID,
+                        title: jsonArray[i].title,
+                        description: jsonArray[i].contents,
+                        date: jsonArray[i].createdDate,
+                        image: 'https://source.unsplash.com/random?wallpapers',
+                        imageLabel: 'Image Text',
+                        linkText: 'Continue reading...',
+                    })
+                }
             }
+            setFeaturedPosts(test)
         }).catch(error => {
+            alert("ServerError: " + error)
             setMainFeaturedPost({
-                title: '으아아아아아아 of a longer featured blog post',
-                    description:
-                "Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents.",
-                    image: 'https://source.unsplash.com/random?wallpapers',
-                imageText: 'main image description',
-                linkText: 'Continue reading…',
+                title: 'Server Error',
+                    description: "ServerError",
+                    image: '',
+                imageText: 'ServerError',
+                linkText: 'ServerError',
             });
         });
     };
@@ -120,7 +136,7 @@ export default function Blog() {
                     <MainFeaturedPost id="mainFeaturedPostComponent" post={mainFeaturedPost} />
                     <Grid container spacing={4}>
                         {featuredPosts.map((post) => (
-                            <FeaturedPost key={post.title} post={post} />
+                            <FeaturedPost key={post.boardID} post={post} />
                         ))}
                     </Grid>
                     <Grid container spacing={5} sx={{ mt: 3 }}>
