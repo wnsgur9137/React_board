@@ -34,13 +34,39 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-    const handleSubmit = (event) => {
+    const navigate = useNavigate();
+
+    const handleSubmit = async(event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         console.log({
             email: data.get('email'),
             password: data.get('password'),
         });
+
+        if (data.get('email') == null || data.get('email') === '' || data.get('password') == null || data.get('password') === '') {
+            alert("로그인 정보를 입력해주세요");
+        }
+
+        try {
+            await axios({
+                method: "post",
+                url: "/reactBoard/users/signin",
+                data: {
+                    email: data.get('email'),
+                    password: data.get('password'),
+                },
+            }).then((response) => {
+                if (typeof response.data.error !== 'undefined') {
+                    alert("회원 정보가 없습니다.")
+                    return
+                }
+                // TODO: - save user information
+                navigate('/')
+            })
+        } catch (error) {
+            alert('Signin Error: ' + error)
+        }
     };
 
     return (

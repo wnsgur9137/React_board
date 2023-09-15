@@ -41,6 +41,14 @@ function Header(props) {
     const navigate = useNavigate()
     // const { sections, title } = props;
 
+    const moveToHome = () => {
+        navigate('/');
+    };
+
+    const moveToBoardList = () => {
+        navigate('/board');
+    };
+
     const moveToSignUp = () => {
         navigate('/signUp');
     };
@@ -48,7 +56,8 @@ function Header(props) {
     return (
         <React.Fragment>
             <Toolbar sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                {/*<Button size="small">Subscribe</Button>*/}
+                <Button size="small" onClick={moveToHome}>Home</Button>
+                <Button size="small" onClick={moveToBoardList}>Board</Button>
                 <Sidebar width={320}>
                     <Button variant="outlined" size="small" onClick={moveToSignUp}>
                         Sign in

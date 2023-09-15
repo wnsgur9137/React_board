@@ -1,4 +1,7 @@
 import * as React from 'react';
+import {useEffect, useState} from "react";
+import axios from "axios";
+
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
@@ -6,6 +9,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 import MainFeaturedPost from './MainFeaturedPost';
 import FeaturedPost from './FeaturedPost';
 import Main from './Main';
@@ -13,8 +17,7 @@ import post1 from './blog-post.1.md';
 import post2 from './blog-post.2.md';
 import post3 from './blog-post.3.md';
 import SidebarContents from "./SidebarContents";
-import {useEffect, useState} from "react";
-import axios from "axios";
+import Chart from '../../components/LineChart';
 
 const defaultMainFeaturedPost = {
     boardID: 0,
@@ -24,6 +27,33 @@ const defaultMainFeaturedPost = {
     image: 'https://source.unsplash.com/random?wallpapers',
     imageText: 'main image description',
     linkText: 'Continue reading…',
+};
+
+const chartData = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+        {
+            type: 'line',
+            label: 'Dataset 1',
+            borderColor: 'rgb(54, 162, 235)',
+            borderWidth: 2,
+            data: [1, 2, 3, 4, 5],
+        },
+        {
+            type: 'bar',
+            label: 'Dataset 2',
+            backgroundColor: 'rgb(255, 99, 132)',
+            data: [1, 2, 3, 4, 5, 6],
+            borderColor: 'red',
+            borderWidth: 2,
+        },
+        {
+            type: 'bar',
+            label: 'Dataset 3',
+            backgroundColor: 'rgb(75, 192, 192)',
+            data: [1, 2, 3, 4, 5, 6],
+        },
+    ],
 };
 
 const defaultFeaturedPosts = [
@@ -124,8 +154,32 @@ export default function Blog() {
         });
     };
 
+    const loadServerSensors = async() => {
+        await axios({
+            method: "get",
+            url: "/reactBoard/sensors-mock"
+        }).then((response) => {
+            const jsonArray = response.data
+            console.log("sensors:")
+            console.log(jsonArray)
+        })
+    }
+
+    const loadServerMemory = async() => {
+        await axios({
+            method: "get",
+            url: "/reactBoard/memory-mock"
+        }).then((response) => {
+            const jsonArray = response.data
+            console.log("memory:")
+            console.log(jsonArray)
+        })
+    }
+
     useEffect(() => {
         loadBoards();
+        loadServerSensors();
+        loadServerMemory();
     }, []);
 
     return (
@@ -134,6 +188,9 @@ export default function Blog() {
             <Container maxWidth="lg">
                 <main>
                     <MainFeaturedPost id="mainFeaturedPostComponent" post={mainFeaturedPost} />
+                    <div>
+                        <Chart chartData={chartData}/>
+                    </div>
                     <Grid container spacing={4}>
                         {featuredPosts.map((post) => (
                             <FeaturedPost key={post.boardID} post={post} />

@@ -150,7 +150,7 @@ export default function SignUp() {
             method: "get",
             url: "/reactBoard/users/duplicated/nickname/" + nickname,
         }).then((response) => {
-            if (response.data.duplicated == false) {
+            if (response.data.duplicated === false) {
                 setNicknameTextFieldError(true);
                 setNicknameTextFieldColor('');
                 setNicknameTextFieldHelperText('중복된 닉네임입니다.');
