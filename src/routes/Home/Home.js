@@ -112,6 +112,8 @@ export default function Blog() {
     const [featuredPosts, setFeaturedPosts] = useState(defaultFeaturedPosts)
     const [coreTempChartData, setCoreTempChartData] = useState(defaultChartData);
     const [sensorChartData, setSensorChartData] = useState(defaultChartData);
+    const [memoryChartData, setMemoryChartData] = useState(defaultChartData);
+    const [swapChartData, setSwapChartData] = useState(defaultChartData);
 
     const loadBoards = async () => {
         // return
@@ -158,7 +160,7 @@ export default function Blog() {
     };
 
     const randomRGB = () => {
-        const min = 0;
+        const min = 50;
         const max = 255;
         const rgb = [0, 0, 0];
         for (let i = 0; i < 3; i++) {
@@ -172,25 +174,26 @@ export default function Blog() {
             method: "get",
             url: "/reactBoard/sensor-mock"
         }).then((response) => {
-            const jsonArray = response.data
+            const jsonArray = response.data;
 
             // label key
-            const appleSmcLabelKeys = []
-            const coreTempLabelKeys = []
-            const appleSmcItems = jsonArray.sensorQueue[0]["applesmc-isa-0300"]["Adapter: ISA adapter"]
-            const coreTempItems = jsonArray.sensorQueue[0]["coretemp-isa-0000"]["Adapter: ISA adapter"]
+            const appleSmcLabelKeys = [];
+            const coreTempLabelKeys = [];
+            const appleSmcItems = jsonArray.sensorQueue[0]["applesmc-isa-0300"]["Adapter: ISA adapter"];
+            const coreTempItems = jsonArray.sensorQueue[0]["coretemp-isa-0000"]["Adapter: ISA adapter"];
             for (const key in appleSmcItems) {
-                appleSmcLabelKeys.push(key)
+                appleSmcLabelKeys.push(key);
             }
             for (const key in coreTempItems) {
-                coreTempLabelKeys.push(key)
+                coreTempLabelKeys.push(key);
             }
 
             // data
-            const chartLabels = []
-            const sensorDataDictionary = {}
-            const coreTempDataDictionary = {}
+            const chartLabels = [];
+            const sensorDataDictionary = {};
+            const coreTempDataDictionary = {};
             jsonArray.sensorQueue.forEach((response) => {
+                // chartLabel
                 const currentDateTime = new Date(response["date"].replace('/', '-').replace('/', '-').replace(/ /g, 'T')+'Z')
                 const koreanDateTime = currentDateTime.toLocaleTimeString('ko-KR', {
                     timeZone: 'Asia/Seoul',
@@ -198,21 +201,23 @@ export default function Blog() {
                 const response_date = response["date"].split(' ')[1];
                 chartLabels.push(koreanDateTime);
 
-                const applesmcItem = response["applesmc-isa-0300"]["Adapter: ISA adapter"]
-                for (const key in applesmcItem) {
+                // apple smc items
+                const applesmcItems = response["applesmc-isa-0300"]["Adapter: ISA adapter"];
+                for (const key in applesmcItems) {
                     if (!sensorDataDictionary[key]) {
                         sensorDataDictionary[key] = [];
                     }
-                    sensorDataDictionary[key].push(parseFloat(applesmcItem[key]))
+                    sensorDataDictionary[key].push(parseFloat(applesmcItems[key]));
                 }
 
-                const coreTempItem = response["coretemp-isa-0000"]["Adapter: ISA adapter"]
-                for (const key in coreTempItem) {
+                // core temp items
+                const coreTempItems = response["coretemp-isa-0000"]["Adapter: ISA adapter"];
+                for (const key in coreTempItems) {
                     if (!coreTempDataDictionary[key]) {
                         coreTempDataDictionary[key] = [];
                     }
                     const regex = /([\+\-]?\d+\.\d+)/;
-                    const match = coreTempItem[key].match(regex);
+                    const match = coreTempItems[key].match(regex);
                     if (match) {
                         const extractedNumber = parseFloat(match[0]);
                         coreTempDataDictionary[key].push(extractedNumber);
@@ -237,7 +242,7 @@ export default function Blog() {
                     borderWidth: 2,
                     data: sensorDataDictionary[key],
                 }
-                sensorChartData.datasets.push(data)
+                sensorChartData.datasets.push(data);
             });
             coreTempLabelKeys.forEach((key) => {
                 const data = {
@@ -247,11 +252,11 @@ export default function Blog() {
                     borderWidth: 2,
                     data: coreTempDataDictionary[key],
                 }
-                coreTempChartData.datasets.push(data)
+                coreTempChartData.datasets.push(data);
             });
 
-            setSensorChartData(sensorChartData)
-            setCoreTempChartData(coreTempChartData)
+            setSensorChartData(sensorChartData);
+            setCoreTempChartData(coreTempChartData);
         });
     }
 
@@ -260,10 +265,90 @@ export default function Blog() {
             method: "get",
             url: "/reactBoard/memory-mock"
         }).then((response) => {
-            const jsonArray = response.data
-            console.log("memory:")
-            console.log(jsonArray)
-        })
+            const jsonArray = response.data;
+
+            const memoryLabelKeys = [];
+            const swapLabelKeys = [];
+            for (const key in jsonArray.memoryQueue[0]["memory"]) {
+                memoryLabelKeys.push(key);
+            }
+            for (const key in jsonArray.memoryQueue[0]["swap"]) {
+                swapLabelKeys.push(key);
+            }
+
+            // data
+            const chartLabels = [];
+            const memoryDataDictionary = {};
+            const swapDataDictionary = {};
+            jsonArray.memoryQueue.forEach((response) => {
+                // chartLabel
+                const currentDateTime = new Date(response["date"].replace('/', '-').replace('/', '-').replace(/ /g, 'T')+'Z')
+                const koreanDateTime = currentDateTime.toLocaleTimeString('ko-KR', {
+                    timeZone: 'Asia/Seoul',
+                });
+                const response_date = response["date"].split(' ')[1];
+                chartLabels.push(koreanDateTime);
+
+                // memory information items
+                const memoryItems = response["memory"];
+                for (const key in memoryItems) {
+                    if (!memoryDataDictionary[key]) {
+                        memoryDataDictionary[key] = [];
+                    }
+                    let value = memoryItems[key];
+                    if (key === 'available' || key === 'total' || key === 'used') {
+                        value = value / 1000 / 1000;
+                    }
+                    memoryDataDictionary[key].push(value)
+                }
+
+                // swap memory information items
+                const swapItems = response["swap"];
+                for (const key in swapItems) {
+                    if (!swapDataDictionary[key]) {
+                        swapDataDictionary[key] = [];
+                    }
+                    let value = swapItems[key];
+                    if (key === 'available' || key === 'total' || key === 'used') {
+                        value = value / 1000 / 1000;
+                    }
+                    swapDataDictionary[key].push(value);
+                }
+            });
+
+            const memoryChartData = {
+                labels: chartLabels,
+                datasets: []
+            }
+            const swapChartData = {
+                labels: chartLabels,
+                datasets: [],
+            }
+
+            memoryLabelKeys.forEach((key) => {
+                const data = {
+                    type: 'line',
+                    label: key,
+                    borderColor: `${randomRGB()}`,
+                    borderWidth: 2,
+                    data: memoryDataDictionary[key],
+                }
+                memoryChartData.datasets.push(data);
+            });
+            swapLabelKeys.forEach((key) => {
+                const data = {
+                    type: 'line',
+                    label: key,
+                    borderColor: `${randomRGB()}`,
+                    borderWidth: 2,
+                    data: swapDataDictionary[key],
+                }
+                swapChartData.datasets.push(data);
+            });
+
+            setMemoryChartData(memoryChartData);
+            setSwapChartData(swapChartData);
+        });
     }
 
     useEffect(() => {
@@ -285,7 +370,7 @@ export default function Blog() {
                           alignItems="center"
                           spacig={4}
                           sx={{ mt: 3 }}>
-                        <Divider>SENSORS</Divider>
+                        <Divider>SENSORS (°C)</Divider>
                         <Chart id="sensorChart" chartData={sensorChartData} />
                     </Grid>
                     <Divider />
@@ -295,8 +380,28 @@ export default function Blog() {
                           alignItems="center"
                           spacig={4}
                           sx={{ mt: 3}}>
-                        <Divider>CORE TEMP</Divider>
+                        <Divider>CORE TEMP (°C)</Divider>
                         <Chart id="coreTempChart" chartData={coreTempChartData} />
+                    </Grid>
+                    <Divider />
+                    <Grid container
+                          direction="column"
+                          justifyContent="center"
+                          alignItems="center"
+                          spacig={4}
+                          sx={{ mt: 3}}>
+                        <Divider>MEMORY USED (MB)</Divider>
+                        <Chart id="coreTempChart" chartData={memoryChartData} />
+                    </Grid>
+                    <Divider />
+                    <Grid container
+                          direction="column"
+                          justifyContent="center"
+                          alignItems="center"
+                          spacig={4}
+                          sx={{ mt: 3}}>
+                        <Divider>SWAP MEMORY USED (MB)</Divider>
+                        <Chart id="coreTempChart" chartData={swapChartData} />
                     </Grid>
                     <Divider />
                     <Grid container spacing={4} sx={{ mt: 3 }}>

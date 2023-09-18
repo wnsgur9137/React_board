@@ -9,7 +9,7 @@ import { Line } from "react-chartjs-2";
 const ChartMock = ({ chartData }) => {
     return (
         <Container>
-            <Line type="line" data={chartData} />
+            <Line type="line" data={chartData} height={150}/>
         </Container>
     );
 };
@@ -19,4 +19,5 @@ export default ChartMock;
 const Container = styled.div`
   width: 90vw;
   max-width: 900px;
+  height: 50vw;
 `;
