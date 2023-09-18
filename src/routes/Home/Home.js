@@ -8,6 +8,7 @@ import Container from '@mui/material/Container';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
+import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import MainFeaturedPost from './MainFeaturedPost';
@@ -156,50 +157,101 @@ export default function Blog() {
         });
     };
 
+    const randomRGB = () => {
+        const min = 0;
+        const max = 255;
+        const rgb = [0, 0, 0];
+        for (let i = 0; i < 3; i++) {
+            rgb[i] = Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
+    }
+
     const loadServerSensors = async() => {
         await axios({
             method: "get",
             url: "/reactBoard/sensor-mock"
         }).then((response) => {
             const jsonArray = response.data
-            const chartLabels = []
-            const sensorChartData = []
-            const coreChartData = []
+
+            // label key
+            const appleSmcLabelKeys = []
+            const coreTempLabelKeys = []
             const appleSmcItems = jsonArray.sensorQueue[0]["applesmc-isa-0300"]["Adapter: ISA adapter"]
             const coreTempItems = jsonArray.sensorQueue[0]["coretemp-isa-0000"]["Adapter: ISA adapter"]
-            // for (const key in appleSmcItems) {
-            //     sensorChartLabels.push(key)
-            //     const numericPart = appleSmcItems[key].match(/[+-]?\d+(\.\d+)?/);
-            //     if (numericPart) {
-            //         sensorChartData.push(parseFloat(numericPart))
-            //     }
-            // }
+            for (const key in appleSmcItems) {
+                appleSmcLabelKeys.push(key)
+            }
+            for (const key in coreTempItems) {
+                coreTempLabelKeys.push(key)
+            }
+
+            // data
+            const chartLabels = []
+            const sensorDataDictionary = {}
+            const coreTempDataDictionary = {}
             jsonArray.sensorQueue.forEach((response) => {
-                const responseItem = response["applesmc-isa-0300"]["Adapter: ISA adapter"]
-                for (const key in responseItem) {
-                    // console.log(key)
-                    // console.log(responseItem[key])
-                    // console.log()
+                const currentDateTime = new Date(response["date"].replace('/', '-').replace('/', '-').replace(/ /g, 'T')+'Z')
+                const koreanDateTime = currentDateTime.toLocaleTimeString('ko-KR', {
+                    timeZone: 'Asia/Seoul',
+                });
+                const response_date = response["date"].split(' ')[1];
+                chartLabels.push(koreanDateTime);
+
+                const applesmcItem = response["applesmc-isa-0300"]["Adapter: ISA adapter"]
+                for (const key in applesmcItem) {
+                    if (!sensorDataDictionary[key]) {
+                        sensorDataDictionary[key] = [];
+                    }
+                    sensorDataDictionary[key].push(parseFloat(applesmcItem[key]))
+                }
+
+                const coreTempItem = response["coretemp-isa-0000"]["Adapter: ISA adapter"]
+                for (const key in coreTempItem) {
+                    if (!coreTempDataDictionary[key]) {
+                        coreTempDataDictionary[key] = [];
+                    }
+                    const regex = /([\+\-]?\d+\.\d+)/;
+                    const match = coreTempItem[key].match(regex);
+                    if (match) {
+                        const extractedNumber = parseFloat(match[0]);
+                        coreTempDataDictionary[key].push(extractedNumber);
+                    }
                 }
             });
-            // for (const key in coreTempItems) {
-            //     coreChartLabels.push(key)
-            //     const numericPart = coreTempItems[key].match(/([+-]?\d+\.\d+)°C/);
-            //     if (numericPart) {
-            //         coreChartData.push(parseFloat(numericPart[1]))
-            //     }
-            // }
 
-            // labels
-            jsonArray.sensorQueue.forEach((response) => {
-                chartLabels.push(response["date"]);
+            const sensorChartData = {
+                labels: chartLabels,
+                datasets: []
+            }
+            const coreTempChartData = {
+                labels: chartLabels,
+                datasets: []
+            }
+
+            appleSmcLabelKeys.forEach((key) => {
+                const data = {
+                    type: 'line',
+                    label: key,
+                    borderColor: `${randomRGB()}`,
+                    borderWidth: 2,
+                    data: sensorDataDictionary[key],
+                }
+                sensorChartData.datasets.push(data)
             });
-            const currentSensorChartData = defaultChartData
-            currentSensorChartData.lables = chartLabels
-            console.log(currentSensorChartData.lables)
-            setSensorChartData(currentSensorChartData)
-            setSensorChartData.labels = chartLabels
-            setCoreTempChartData.labels = chartLabels
+            coreTempLabelKeys.forEach((key) => {
+                const data = {
+                    type: 'line',
+                    label: key,
+                    borderColor: `${randomRGB()}`,
+                    borderWidth: 2,
+                    data: coreTempDataDictionary[key],
+                }
+                coreTempChartData.datasets.push(data)
+            });
+
+            setSensorChartData(sensorChartData)
+            setCoreTempChartData(coreTempChartData)
         });
     }
 
@@ -226,11 +278,28 @@ export default function Blog() {
             <Container maxWidth="lg">
                 <main>
                     <MainFeaturedPost id="mainFeaturedPostComponent" post={mainFeaturedPost} />
-                    <div>
-                        <Chart chartData={sensorChartData} />
-                        <Chart chartData={coreTempChartData} />
-                    </div>
-                    <Grid container spacing={4}>
+                    <Divider />
+                    <Grid container
+                          direction="column"
+                          justifyContent="center"
+                          alignItems="center"
+                          spacig={4}
+                          sx={{ mt: 3 }}>
+                        <Divider>SENSORS</Divider>
+                        <Chart id="sensorChart" chartData={sensorChartData} />
+                    </Grid>
+                    <Divider />
+                    <Grid container
+                          direction="column"
+                          justifyContent="center"
+                          alignItems="center"
+                          spacig={4}
+                          sx={{ mt: 3}}>
+                        <Divider>CORE TEMP</Divider>
+                        <Chart id="coreTempChart" chartData={coreTempChartData} />
+                    </Grid>
+                    <Divider />
+                    <Grid container spacing={4} sx={{ mt: 3 }}>
                         {featuredPosts.map((post) => (
                             <FeaturedPost key={post.boardID} post={post} />
                         ))}
