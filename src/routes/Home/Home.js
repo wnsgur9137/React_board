@@ -29,33 +29,6 @@ const defaultMainFeaturedPost = {
     linkText: 'Continue reading…',
 };
 
-const chartData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-    datasets: [
-        {
-            type: 'line',
-            label: 'Dataset 1',
-            borderColor: 'rgb(54, 162, 235)',
-            borderWidth: 2,
-            data: [1, 2, 3, 4, 5],
-        },
-        {
-            type: 'bar',
-            label: 'Dataset 2',
-            backgroundColor: 'rgb(255, 99, 132)',
-            data: [1, 2, 3, 4, 5, 6],
-            borderColor: 'red',
-            borderWidth: 2,
-        },
-        {
-            type: 'bar',
-            label: 'Dataset 3',
-            backgroundColor: 'rgb(75, 192, 192)',
-            data: [1, 2, 3, 4, 5, 6],
-        },
-    ],
-};
-
 const defaultFeaturedPosts = [
     {
         boardID: 0,
@@ -106,9 +79,38 @@ const sidebar = {
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
+const defaultChartData = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+        {
+            type: 'line',
+            label: 'Dataset 1',
+            borderColor: 'rgb(54, 162, 235)',
+            borderWidth: 2,
+            data: [1, 2, 3, 4, 5],
+        },
+        {
+            type: 'bar',
+            label: 'Dataset 2',
+            backgroundColor: 'rgb(255, 99, 132)',
+            data: [1, 2, 3, 4, 5, 6],
+            borderColor: 'red',
+            borderWidth: 2,
+        },
+        {
+            type: 'bar',
+            label: 'Dataset 3',
+            backgroundColor: 'rgb(75, 192, 192)',
+            data: [1, 2, 3, 4, 5, 6],
+        },
+    ],
+};
+
 export default function Blog() {
     const [mainFeaturedPost, setMainFeaturedPost] = useState(defaultMainFeaturedPost);
     const [featuredPosts, setFeaturedPosts] = useState(defaultFeaturedPosts)
+    const [coreTempChartData, setCoreTempChartData] = useState(defaultChartData);
+    const [sensorChartData, setSensorChartData] = useState(defaultChartData);
 
     const loadBoards = async () => {
         // return
@@ -157,12 +159,48 @@ export default function Blog() {
     const loadServerSensors = async() => {
         await axios({
             method: "get",
-            url: "/reactBoard/sensors-mock"
+            url: "/reactBoard/sensor-mock"
         }).then((response) => {
             const jsonArray = response.data
-            console.log("sensors:")
-            console.log(jsonArray)
-        })
+            const chartLabels = []
+            const sensorChartData = []
+            const coreChartData = []
+            const appleSmcItems = jsonArray.sensorQueue[0]["applesmc-isa-0300"]["Adapter: ISA adapter"]
+            const coreTempItems = jsonArray.sensorQueue[0]["coretemp-isa-0000"]["Adapter: ISA adapter"]
+            // for (const key in appleSmcItems) {
+            //     sensorChartLabels.push(key)
+            //     const numericPart = appleSmcItems[key].match(/[+-]?\d+(\.\d+)?/);
+            //     if (numericPart) {
+            //         sensorChartData.push(parseFloat(numericPart))
+            //     }
+            // }
+            jsonArray.sensorQueue.forEach((response) => {
+                const responseItem = response["applesmc-isa-0300"]["Adapter: ISA adapter"]
+                for (const key in responseItem) {
+                    // console.log(key)
+                    // console.log(responseItem[key])
+                    // console.log()
+                }
+            });
+            // for (const key in coreTempItems) {
+            //     coreChartLabels.push(key)
+            //     const numericPart = coreTempItems[key].match(/([+-]?\d+\.\d+)°C/);
+            //     if (numericPart) {
+            //         coreChartData.push(parseFloat(numericPart[1]))
+            //     }
+            // }
+
+            // labels
+            jsonArray.sensorQueue.forEach((response) => {
+                chartLabels.push(response["date"]);
+            });
+            const currentSensorChartData = defaultChartData
+            currentSensorChartData.lables = chartLabels
+            console.log(currentSensorChartData.lables)
+            setSensorChartData(currentSensorChartData)
+            setSensorChartData.labels = chartLabels
+            setCoreTempChartData.labels = chartLabels
+        });
     }
 
     const loadServerMemory = async() => {
@@ -189,7 +227,8 @@ export default function Blog() {
                 <main>
                     <MainFeaturedPost id="mainFeaturedPostComponent" post={mainFeaturedPost} />
                     <div>
-                        <Chart chartData={chartData}/>
+                        <Chart chartData={sensorChartData} />
+                        <Chart chartData={coreTempChartData} />
                     </div>
                     <Grid container spacing={4}>
                         {featuredPosts.map((post) => (
