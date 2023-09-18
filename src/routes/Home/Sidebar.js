@@ -49,7 +49,8 @@ const Sidebar = ({ width=280, children }) => {
                 <button onClick={() => toggleMenu()}
                         className={styles.button} style={{ top: scrollPosition > 100 ? 10 : 60 }} >
                     {isOpen ?
-                        <span>X</span> : <img src="/src/Images/listBullet.png" alt="contact open button" className={styles.openBtn}/>
+                        <span>X</span> : <span></span>
+                        // <img src="/src/Images/listBullet.png" alt="contact open button" className={styles.openBtn}/>
                     }
                 </button>
                 <div className={styles.content}>{children}</div>

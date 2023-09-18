@@ -58,7 +58,7 @@ const BoardList = () => {
             .join('&');
 
         return
-        const resp = (await axios.get('//localhost:3000/board' + queryString)).data;
+        const resp = (await axios.get('/reactBoard/boards' + queryString)).data;
         setBoardList(resp.data);
 
         const pngn = resp.pagination;
@@ -76,6 +76,29 @@ const BoardList = () => {
         }
 
         setPageList(tempPages);
+    }
+
+    const loadBoards = async () => {
+        await axios({
+            method: "get",
+            url: "/reactBoard/boards"
+        }).then((response) => {
+            console.log(response.data) // TEST
+            const jsonArray = response.data;
+            const boardItems = []
+            jsonArray.forEach((board) => {
+                const item = {
+                    boardID: board.boardID,
+                    title: board.title,
+                    description: board.contents,
+                    image: 'https://source.unsplash.com/random?wallpapers',
+                    imageText: 'image description',
+                    linkText: 'Continue reading...'
+                };
+                boardItems.push(item);
+            });
+            setFeaturedPosts(boardItems)
+        });
     }
 
     const moveToWrite = () => {
@@ -113,6 +136,7 @@ const BoardList = () => {
 
     useEffect(() => {
         loadBoardList();
+        loadBoards();
     }, []);
 
     return (
