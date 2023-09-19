@@ -13,6 +13,7 @@ function App() {
     return (
         <Routes>
             <Route path="/" element={<Home/>}/>
+
             <Route path="/board" element={<BoardList/>}/>
             <Route path="/board/:idx" element={<BoardDetail/>}/>
             <Route path="/write" element={<BoardWrite/>}/>

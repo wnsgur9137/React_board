@@ -286,7 +286,6 @@ export default function Blog() {
                 const koreanDateTime = currentDateTime.toLocaleTimeString('ko-KR', {
                     timeZone: 'Asia/Seoul',
                 });
-                const response_date = response["date"].split(' ')[1];
                 chartLabels.push(koreanDateTime);
 
                 // memory information items
@@ -406,7 +405,7 @@ export default function Blog() {
                     <Divider />
                     <Grid container spacing={4} sx={{ mt: 3 }}>
                         {featuredPosts.map((post) => (
-                            <FeaturedPost key={post.boardID} post={post} />
+                            <FeaturedPost key={post.boardID} post={post}/>
                         ))}
                     </Grid>
                     <Grid container spacing={5} sx={{ mt: 3 }}>

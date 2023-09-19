@@ -9,10 +9,11 @@ import CardMedia from '@mui/material/CardMedia';
 
 function FeaturedPost(props) {
     const { post } = props;
+    const hrefURL = `/board/${post.boardID}`
 
     return (
         <Grid item xs={12} md={6}>
-            <CardActionArea component="a" href="#">
+            <CardActionArea component="a" href={hrefURL}>
                 <Card sx={{ display: 'flex' }}>
                     <CardContent sx={{ flex: 1 }}>
                         <Typography component="h2" variant="h5">

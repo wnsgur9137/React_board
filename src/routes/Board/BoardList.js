@@ -7,6 +7,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import FeaturedPost from "../Home/FeaturedPost";
+import {MenuItem, Select} from "@mui/material";
 
 const defaultTheme = createTheme();
 
@@ -51,7 +52,7 @@ const BoardList = () => {
     });
 
     const loadBoardList = async () => {
-        if (search.page == currentPage) return;
+        if (search.page === currentPage) return;
 
         const queryString = Object.entries(search)
             .map((e) => e.join('='))
@@ -167,6 +168,14 @@ const BoardList = () => {
                     </div>
                     <br/>
                     <div>
+                        <Select
+                            label="Search"
+                            // value="title"
+                            onChange={onChange}>
+                            <MenuItem value="title">Title</MenuItem>
+                            <MenuItem value="contents">Contents</MenuItem>
+                            <MenuItem value="titleCotnents">Title+Contents</MenuItem>
+                        </Select>
                         <select name="sk" onChange={onChange}>
                             <option value="">Select</option>
                             <option value="title">Title</option>
