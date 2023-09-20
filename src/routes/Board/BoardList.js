@@ -2,12 +2,15 @@ import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import { Link, useNavigate } from 'react-router-dom';
 
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import {createTheme, ThemeProvider} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline'
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import FeaturedPost from "../Home/FeaturedPost";
-import {MenuItem, Select} from "@mui/material";
+import {ButtonGroup, MenuItem, Select} from "@mui/material";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Divider from "@mui/material/Divider";
 
 const defaultTheme = createTheme();
 
@@ -34,60 +37,30 @@ const defaultFeaturedPosts = [
 
 const BoardList = () => {
     const navigate = useNavigate()
-
     const [featuredPosts, setFeaturedPosts] = useState(defaultFeaturedPosts)
-
-    const [boardList, setBoardList] = useState([]);
-    const [pageList, setPageList] = useState([]);
-
-    const [currentPage, setCurrentPage] = useState(0);
-    const [preventBlock, setPreventBlock] = useState(0);
-    const [nextBlock, setNextBlock] = useState(0);
-    const [lastPage, setLastPage] = useState(0);
-
-    const [search, setSearch] = useState({
-        page: 1,
-        sk: '',
-        sv: '',
-    });
-
-    const loadBoardList = async () => {
-        if (search.page === currentPage) return;
-
-        const queryString = Object.entries(search)
-            .map((e) => e.join('='))
-            .join('&');
-
-        return
-        const resp = (await axios.get('/reactBoard/boards' + queryString)).data;
-        setBoardList(resp.data);
-
-        const pngn = resp.pagination;
-
-        const { endPage, nextBlock, preventBlock, startPage, totalPageCount } = pngn;
-
-        setCurrentPage(search.page);
-        setPreventBlock(preventBlock);
-        setNextBlock(nextBlock);
-        setLastPage(totalPageCount);
-
-        const tempPages = [];
-        for (let i = startPage; i <= endPage; i++) {
-            tempPages.push(i);
-        }
-
-        setPageList(tempPages);
-    }
+    const [filter, setFilter] = useState('title');
+    const [keyword, setKeyword] = useState('');
+    const [limit, setLimit] = useState(window.matchMedia("(min-width: 1024px)").matches ? 10 : 4);
+    const [writer, setWriter] = useState('');
+    const [page, setPage] = useState(1);
+    const [allPageList, setAllPageList] = useState([]);
+    const [adjacentPageList, setAdjacentPageList] = useState([]);
 
     const loadBoards = async () => {
         await axios({
             method: "get",
-            url: "/reactBoard/boards"
+            url: `/reactBoard/boards?page=${page}&limit=${limit}&keyword=${keyword}&filter=${filter}&writer=${writer}`,
         }).then((response) => {
             console.log(response.data) // TEST
             const jsonArray = response.data;
+            const temp = []
+            for (let i=1; i<=Math.ceil((jsonArray.countAll / limit)); i++) {
+                temp.push(i)
+            }
+            setAllPageList(temp)
+
             const boardItems = []
-            jsonArray.forEach((board) => {
+            jsonArray.boards.forEach((board) => {
                 const item = {
                     boardID: board.boardID,
                     title: board.title,
@@ -100,93 +73,148 @@ const BoardList = () => {
             });
             setFeaturedPosts(boardItems)
         });
-    }
-
-    const moveToWrite = () => {
-        navigate('/write')
-    }
-
-    const onClick = (event) => {
-        let value = event.target.value;
-        setSearch({
-            ...search,
-            page: value,
-        });
-
-        loadBoardList();
     };
 
-    const onChange = (event) => {
-        const { value, name } = event.target;
-        setSearch({
-            ...search,
-            [name]: value,
-        });
-    };
+    const setAdjacentPage = (currentPage) => {
+        let temp = []
+        let count = 0
+        switch (parseInt(currentPage)) {
+            case 1:
+            case 2:
+            case 3:
+                count = Math.min(allPageList.length, 5)
+                for (let i=1; i<=count; i++) {
+                    temp.push(i)
+                }
+                setAdjacentPageList(temp)
+                break;
 
-    const onSearch = () => {
-        if (search.sk !== '' && search.sv !== '') {
-            setSearch({
-                ...search,
-                page: 1,
-            });
-            setCurrentPage(0);
-            loadBoardList();
+            case allPageList.slice(-2)[0]:
+            case allPageList.slice(-1)[0]:
+                count = -Math.min(allPageList.length, 5)
+                for (let i=count; i<0; i++) {
+                    temp.push(allPageList.slice(i)[0])
+                }
+                setAdjacentPageList(temp)
+                break;
+
+            default:
+                const currentPage = parseInt(page)
+                for (let i=(currentPage-2); i<=(currentPage+2); i++) {
+                    temp.push(i)
+                }
+                setAdjacentPageList(temp)
         }
     };
 
+    const moveToWrite = () => {
+        navigate('/write')
+    };
+
+    const didChangeLimit = (event) => {
+        const { value, } = event.target;
+        setLimit(value);
+    };
+
+    const didChangePage = (event) => {
+        const { value, } = event.target;
+        switch (value) {
+            case 'first':
+                setPage(1);
+                break;
+            case 'prevent':
+                setPage(page - 1);
+                break;
+            case 'next':
+                setPage(page + 1);
+                break;
+            default:
+                setPage(allPageList.slice(-1)[0])
+        }
+    };
+
+    const onClickPageNumber = (event) => {
+        const { value, } = event.target;
+        setPage(value)
+    };
+
+    const didChangeFilter = (event) => {
+        const { value, } = event.target;
+        setFilter(value);
+    };
+
+    const didChangeKeyword = (event) => {
+        const { value, } = event.target;
+        setKeyword(value);
+    };
+
     useEffect(() => {
-        loadBoardList();
         loadBoards();
-    }, []);
+    }, [page, filter, keyword, limit]);
+
+    useEffect(() => {
+        setAdjacentPage(page)
+    }, [allPageList])
 
     return (
         <ThemeProvider theme={defaultTheme}>
             <CssBaseline />
             <Container maxWidth="lg">
                 <main>
-                    <Grid container spacing={4}>
-                        {featuredPosts.map((post) => (
-                            <FeaturedPost key={post.boardID} post={post} />
-                        ))}
+                    <Grid container spacing={2} justifyContent="center">
+                        <Grid item container spacing={2} justifyContent="flex-end">
+                            <Grid item>
+                                <TextField
+                                    required
+                                    label="Limit"
+                                    defaultValue={limit}
+                                    size="small"
+                                    onChange={didChangeLimit}/>
+                            </Grid>
+                            <Grid item>
+                                <Button variant="contained" onClick={moveToWrite}>글쓰기</Button>
+                            </Grid>
+                        </Grid>
+
+                        <Grid item spacing={1} container justifyContent="center" alignItems="center">
+                            <Grid item>
+                                <Select
+                                    value={filter}
+                                    label="Title"
+                                    size="small"
+                                    onChange={didChangeFilter}>
+                                    <MenuItem value="title">Title</MenuItem>
+                                    <MenuItem value="contents">Contents</MenuItem>
+                                    <MenuItem value="titleCotnents">Title+Contents</MenuItem>
+                                </Select>
+                            </Grid>
+                            <Grid item>
+                                <TextField type="text" name="sv" size="small" onChange={didChangeKeyword} />
+                            </Grid>
+                            <Grid item>
+                                <Button variant="contained" onClick={loadBoards}>Search</Button>
+                            </Grid>
+                        </Grid>
+
+                        <Grid item container spacing={4}>
+
+                            {featuredPosts.map((post) => (
+                                <FeaturedPost key={post.boardID} post={post} />
+                            ))}
+
+                            <Grid item container justifyContent="center">
+                                <ButtonGroup variant="outlined">
+                                    <Button disabled={parseInt(page) === 1 ? true : false} variant="contained" size="small" value={'first'} onClick={didChangePage}>&lt;&lt;</Button>
+                                    <Button disabled={parseInt(page) === 1 ? true : false} variant="contained" size="small" value={'prevent'} onClick={didChangePage}>&lt;</Button>
+                                    {adjacentPageList.map((pageNumber, index) => (
+                                        <Button value={pageNumber} disabled={parseInt(page) == pageNumber ? true : false} size="small" onClick={onClickPageNumber}>{pageNumber}</Button>
+                                    ))}
+                                    <Button disabled={parseInt(page) === allPageList.slice(-1)[0] ? true : false} variant="contained" size="small" value={'next'} onClick={didChangePage}>&gt;</Button>
+                                    <Button disabled={parseInt(page) === allPageList.slice(-1)[0] ? true : false} variant="contained" size="small" value={'last'} onClick={didChangePage}>&gt;&gt;</Button>
+                                </ButtonGroup>
+                            </Grid>
+                        </Grid>
                     </Grid>
-                    <ul>
-                        {boardList.map((board) => (
-                            <li key={board.idx}>
-                                <link to={`/board/${board.idx}`}>{board.title}</link>
-                            </li>
-                        ))}
-                    </ul>
-                    <div>
-                        <button onClick={onClick} value={1}>&lt;&lt;</button>
-                        <button onClick={onClick} value={preventBlock}>&lt;</button>
-                        {pageList.map((page, index) => (
-                            <button key={index} onClick={onClick} value={page}>{page}</button>
-                        ))}
-                        <button onClick={onClick} value={nextBlock}>&gt;</button>
-                        <button onClick={onClick} value={lastPage}>&gt;&gt;</button>
-                    </div>
-                    <br/>
-                    <div>
-                        <Select
-                            label="Search"
-                            // value="title"
-                            onChange={onChange}>
-                            <MenuItem value="title">Title</MenuItem>
-                            <MenuItem value="contents">Contents</MenuItem>
-                            <MenuItem value="titleCotnents">Title+Contents</MenuItem>
-                        </Select>
-                        <select name="sk" onChange={onChange}>
-                            <option value="">Select</option>
-                            <option value="title">Title</option>
-                            <option value="contents">Contents</option>
-                        </select>
-                        <input type="text" name="sv" id="" onChange={onChange} />
-                        <button onClick={onSearch}>Search</button>
-                    </div>
-                    <div>
-                        <button onClick={moveToWrite}>글쓰기</button>
-                    </div>
                 </main>
             </Container>
         </ThemeProvider>
