@@ -11,13 +11,13 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import MainFeaturedPost from './MainFeaturedPost';
-import FeaturedPost from './FeaturedPost';
+import MainFeaturedPost from '../../components/MainFeaturedPost';
+import FeaturedPost from '../../components/FeaturedPost';
 import Main from './Main';
-import post1 from './blog-post.1.md';
-import post2 from './blog-post.2.md';
-import post3 from './blog-post.3.md';
-import SidebarContents from "./SidebarContents";
+import post1 from './Dummy/blog-post.1.md';
+import post2 from './Dummy/blog-post.2.md';
+import post3 from './Dummy/blog-post.3.md';
+import SidebarContents from "../../layout/Sidebar/SidebarContents";
 import Chart from '../../components/LineChart';
 
 const defaultMainFeaturedPost = {

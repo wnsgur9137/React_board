@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import Markdown from './Markdown';
+import Markdown from '../../components/Markdown';
 
 function Main(props) {
     const { posts, title } = props;

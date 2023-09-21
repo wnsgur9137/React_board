@@ -6,7 +6,7 @@ import {createTheme, ThemeProvider} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline'
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import FeaturedPost from "../Home/FeaturedPost";
+import FeaturedPost from "../../components/FeaturedPost";
 import {ButtonGroup, MenuItem, Select} from "@mui/material";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -36,7 +36,8 @@ const defaultFeaturedPosts = [
 ];
 
 const BoardList = () => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const userID = localStorage.getItem("userID");
     const [featuredPosts, setFeaturedPosts] = useState(defaultFeaturedPosts)
     const [filter, setFilter] = useState('title');
     const [keyword, setKeyword] = useState('');
@@ -54,7 +55,7 @@ const BoardList = () => {
             console.log(response.data) // TEST
             const jsonArray = response.data;
             const temp = []
-            for (let i=1; i<=Math.ceil((jsonArray.countAll / limit)); i++) {
+            for (let i=1; i<=Math.ceil((jsonArray.count / limit)); i++) {
                 temp.push(i)
             }
             setAllPageList(temp)
@@ -72,6 +73,8 @@ const BoardList = () => {
                 boardItems.push(item);
             });
             setFeaturedPosts(boardItems)
+        }).catch(error => {
+            alert(`Error: Server error ${error}`)
         });
     };
 
@@ -113,6 +116,7 @@ const BoardList = () => {
 
     const didChangeLimit = (event) => {
         const { value, } = event.target;
+        if (value.length === 0) { return }
         setLimit(value);
     };
 
@@ -148,11 +152,18 @@ const BoardList = () => {
         setKeyword(value);
     };
 
-    useEffect(() => {
-        loadBoards();
-    }, [page, filter, keyword, limit]);
+    const onClickSearch = () => {
+        loadBoards()
+    };
 
     useEffect(() => {
+        loadBoards();
+    }, [page, filter, limit]);
+
+    useEffect(() => {
+        if (page > allPageList.length) {
+            setPage(1)
+        }
         setAdjacentPage(page)
     }, [allPageList])
 
@@ -171,9 +182,11 @@ const BoardList = () => {
                                     size="small"
                                     onChange={didChangeLimit}/>
                             </Grid>
-                            <Grid item>
-                                <Button variant="contained" onClick={moveToWrite}>글쓰기</Button>
-                            </Grid>
+                            {userID && (
+                                <Grid item>
+                                    <Button variant="contained" onClick={moveToWrite}>글쓰기</Button>
+                                </Grid>
+                            )}
                         </Grid>
 
                         <Grid item spacing={1} container justifyContent="center" alignItems="center">
@@ -185,14 +198,14 @@ const BoardList = () => {
                                     onChange={didChangeFilter}>
                                     <MenuItem value="title">Title</MenuItem>
                                     <MenuItem value="contents">Contents</MenuItem>
-                                    <MenuItem value="titleCotnents">Title+Contents</MenuItem>
+                                    <MenuItem value="title_contents">Title+Contents</MenuItem>
                                 </Select>
                             </Grid>
                             <Grid item>
                                 <TextField type="text" name="sv" size="small" onChange={didChangeKeyword} />
                             </Grid>
                             <Grid item>
-                                <Button variant="contained" onClick={loadBoards}>Search</Button>
+                                <Button variant="contained" onClick={onClickSearch}>Search</Button>
                             </Grid>
                         </Grid>
 
@@ -204,13 +217,13 @@ const BoardList = () => {
 
                             <Grid item container justifyContent="center">
                                 <ButtonGroup variant="outlined">
-                                    <Button disabled={parseInt(page) === 1 ? true : false} variant="contained" size="small" value={'first'} onClick={didChangePage}>&lt;&lt;</Button>
-                                    <Button disabled={parseInt(page) === 1 ? true : false} variant="contained" size="small" value={'prevent'} onClick={didChangePage}>&lt;</Button>
+                                    <Button disabled={parseInt(page) === 1} variant="contained" size="small" value={'first'} onClick={didChangePage}>&lt;&lt;</Button>
+                                    <Button disabled={parseInt(page) === 1} variant="contained" size="small" value={'prevent'} onClick={didChangePage}>&lt;</Button>
                                     {adjacentPageList.map((pageNumber, index) => (
                                         <Button value={pageNumber} disabled={parseInt(page) == pageNumber ? true : false} size="small" onClick={onClickPageNumber}>{pageNumber}</Button>
                                     ))}
-                                    <Button disabled={parseInt(page) === allPageList.slice(-1)[0] ? true : false} variant="contained" size="small" value={'next'} onClick={didChangePage}>&gt;</Button>
-                                    <Button disabled={parseInt(page) === allPageList.slice(-1)[0] ? true : false} variant="contained" size="small" value={'last'} onClick={didChangePage}>&gt;&gt;</Button>
+                                    <Button disabled={parseInt(page) === allPageList.slice(-1)[0] || allPageList.length === 0} variant="contained" size="small" value={'next'} onClick={didChangePage}>&gt;</Button>
+                                    <Button disabled={parseInt(page) === allPageList.slice(-1)[0] || allPageList.length === 0} variant="contained" size="small" value={'last'} onClick={didChangePage}>&gt;&gt;</Button>
                                 </ButtonGroup>
                             </Grid>
                         </Grid>

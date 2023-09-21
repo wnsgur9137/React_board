@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {createTheme, ThemeProvider} from "@mui/material/styles";
@@ -13,6 +13,8 @@ const defaultTheme = createTheme();
 
 const BoardWrite = () => {
     const navigate = useNavigate()
+    const userID = localStorage.getItem("userID") || null;
+    const nickname = localStorage.getItem("nickname") || null;
 
     const [board, setBoard] = useState({
         title: '',
@@ -34,37 +36,31 @@ const BoardWrite = () => {
                 url: '/reactBoard/boards',
                 data: {
                     title: board.title,
-                    content: board.contents,
-                    writer: 'nickname',
-                    user_id: 0
-                }.then((response) => {
-                    const data = response.data;
-                    console.log(`board write response data: ${data}`);
+                    contents: board.contents,
+                    writer: nickname,
+                    user_id: userID
+                }
+                }).then((response) => {
+                    const url = `/board/${response.data.boardID}`
+                    navigate(url)
                 })
-            });
         } catch (error) {
-            alert("등록에 실패하였습니다.");
+            alert(`등록에 실패하였습니다.\n${error}`);
         }
-
-        await axios.post('//localhost:8000/board', board).then((res) => {
-            alert('등록되었습니다.');
-            navigate('/board');
-        });
     };
 
-    const moveToList = () => {
-        navigate('/board');
-    };
-
-    const handleSubmit = () => {
-
-    };
+    useEffect(() => {
+        if (userID === null || nickname === null) {
+            alert('로그인이 필요합니다.');
+            navigate('/');
+        }
+    });
 
     return (
         <ThemeProvider theme={defaultTheme}>
             <Container component="main" maxWidth="lg">
                 <CssBaseline />
-                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+                <Box component="form" noValidate onSubmit={saveBoard} sx={{ mt: 3 }}>
                     <Grid container
                           justifyContent="center"
                           alignItems="center"
@@ -92,6 +88,8 @@ const BoardWrite = () => {
                         <Grid item container xs={12} justifyContent="flex-end">
                             <Button
                                 variant="contained"
+                                // type="submit"
+                                onClick={saveBoard}
                                 disabled={board.title.length === 0 || board.contents.length === 0}
                             >SAVE</Button>
                         </Grid>

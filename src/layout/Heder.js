@@ -7,8 +7,8 @@ import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import Typography from '@mui/material/Typography';
 // import Link from '@mui/material/Link';
-import Sidebar from "../routes/Home/Sidebar";
-import SidebarContents from "../routes/Home/SidebarContents";
+import Sidebar from "./Sidebar/Sidebar";
+import SidebarContents from "./Sidebar/SidebarContents";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -55,15 +55,36 @@ function Header(props) {
         navigate('/signUp');
     };
 
+    const moveToSignIn = () => {
+        navigate('/signIn');
+        window.location.reload();
+    };
+
+    const SignOut = () => {
+        const userConfirmed = window.confirm("로그아웃 하시겠습니까?");
+        if (userConfirmed) {
+            localStorage.clear()
+            navigate('/');
+            window.location.reload();
+        }
+    };
+
     return (
         <React.Fragment>
             <Toolbar sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Button size="small" onClick={moveToHome}>Home</Button>
                 <Button size="small" onClick={moveToBoardList}>Board</Button>
-                <Sidebar width={320}>
-                    <Button variant="outlined" size="small" onClick={moveToSignUp}>
-                        Sign in
-                    </Button>
+                <Sidebar id="sidebar" width={320}>
+                    {!userID && (
+                        <Button variant="outlined" size="small" onClick={moveToSignIn}>
+                            Sign in
+                        </Button>
+                    )}
+                    {userID && (
+                        <Button variant="outlined" size="small" onClick={SignOut}>
+                            Sign out
+                        </Button>
+                    )}
                     <hr />
                     <SidebarContents
                         title={sidebar.title}
