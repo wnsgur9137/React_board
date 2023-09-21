@@ -12,6 +12,7 @@ import SidebarContents from "../routes/Home/SidebarContents";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookIcon from "@mui/icons-material/Facebook";
+import Grid from "@mui/material/Grid";
 
 const sidebar = {
     title: '202347013 이준혁',
@@ -39,7 +40,8 @@ const sidebar = {
 
 function Header(props) {
     const navigate = useNavigate()
-    // const { sections, title } = props;
+    const userID = localStorage.getItem('userID') || null;
+    const nickname = localStorage.getItem('nickname') || null;
 
     const moveToHome = () => {
         navigate('/');
@@ -83,9 +85,30 @@ function Header(props) {
                 <IconButton>
                     <SearchIcon />
                 </IconButton>
-                <Button variant="outlined" size="small" onClick={moveToSignUp}>
-                    Sign up
-                </Button>
+                <Grid container
+                      spacing={2}
+                      columns={{ xs: 4, md: 12 }}
+                      justifyContent="flex-end">
+                    <Grid item>
+                    {!userID && (
+                        <Button variant="outlined" size="small" onClick={moveToSignUp}>
+                            Sign up
+                        </Button>
+                    )}
+                    </Grid>
+                    <Grid item>
+                    {nickname && (
+                        <Typography>{nickname}</Typography>
+                    )}
+                    </Grid>
+                    <Grid item>
+                    {userID && (
+                        <Button variant="outlined" size="small">
+                            Edit Information
+                        </Button>
+                    )}
+                    </Grid>
+                </Grid>
             </Toolbar>
             <Toolbar
                 component="nav"

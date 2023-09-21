@@ -62,6 +62,9 @@ export default function SignIn() {
                     return
                 }
                 // TODO: - save user information
+                localStorage.clear()
+                localStorage.setItem('userID', response.data.userID)
+                localStorage.setItem('nickname', response.data.nickname)
                 navigate('/')
             })
         } catch (error) {
