@@ -199,6 +199,7 @@ const BoardList = () => {
                                     <MenuItem value="title">Title</MenuItem>
                                     <MenuItem value="contents">Contents</MenuItem>
                                     <MenuItem value="title_contents">Title+Contents</MenuItem>
+                                    <MenuItem value="writer">Writer</MenuItem>
                                 </Select>
                             </Grid>
                             <Grid item>
