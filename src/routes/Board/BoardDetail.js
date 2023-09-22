@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import axios from 'axios';
 import Board from '../../components/Board';
 
@@ -10,13 +10,15 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 const defaultTheme = createTheme();
 
 const BoardDetail = () => {
-    const { idx } = useParams();
+    const { boardID } = useParams();
     const [loading, setLoading] = useState(true);
     const [board, setBoard] = useState({});
+    const navigate = useNavigate()
+
     const getBoard = async () => {
         await axios({
             method: 'get',
-            url: `/reactBoard/boards/${idx}`
+            url: `/reactBoard/boards/${boardID}`
         }).then((response) => {
             console.log(response.data)
             const currentDateTime = new Date(response.data.createdDate.replace('/', '-').replace('/', '-').replace(/ /g, 'T')+'Z')
@@ -47,11 +49,12 @@ const BoardDetail = () => {
                     <h2>loading...</h2>
                 ) : (
                     <Board
-                        idx={board.idx}
+                        boardID={board.boardID}
                         title={board.title}
                         contents={board.contents}
                         createdDate={board.createdDate}
                         writer={board.writer}
+                        userID={board.userID}
                     />
                 )}
             </Container>

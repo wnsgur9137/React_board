@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -16,16 +16,27 @@ import {StyledMenu} from "./CustomStyle/Menu";
 
 const defaultTheme = createTheme();
 
-const Board = ({ idx, title, contents, createdDate, writer }) => {
+const Board = ({ boardID, title, contents, createdDate, writer, userID }) => {
     const navigate = useNavigate()
     const [anchorEl, setAnchorEl] = useState(null);
     const isOpenMenu = Boolean(anchorEl);
+    const localUserID = localStorage.getItem("userID") || null;
 
     const deleteBoard = async () => {
         if (window.confirm('게시글을 삭제하시겠습니까?')) {
-            await axios.delete(`//localhost:8000/board/${idx}`).then((res) => {
+            await axios({
+                method: "delete",
+                url: `/reactBoard/boards/delete/${userID}/${boardID}`,
+            }).then((response) => {
+                if (response.data["Error"]) {
+                    alert(`삭제에 실패하였습니다.\n다시 시도해주세요.`)
+                    return
+                }
                 alert('삭제되었습니다.');
+                console.log(response.data)
                 navigate('/board');
+            }).catch((error) => {
+                alert(`삭제에 실패하였습니다.\n${error}`)
             });
         }
     };
@@ -38,7 +49,7 @@ const Board = ({ idx, title, contents, createdDate, writer }) => {
     };
 
     const moveToUpdate = () => {
-        navigate('/update/' + idx);
+        navigate(`/board/update/${boardID}`);
     };
 
     const reportBoard = () => {
@@ -62,9 +73,8 @@ const Board = ({ idx, title, contents, createdDate, writer }) => {
                             aria-controls={isOpenMenu ? 'edit-menu' : undefined}
                             aria-haspopup="true"
                             aria-expanded={isOpenMenu ? 'true' : undefined}
-                            onClick={menuClick}
-                            >
-                            EDIT
+                            onClick={menuClick}>
+                            Menu
                         </Button>
                         <StyledMenu
                             id={"edit-menu"}
@@ -75,8 +85,12 @@ const Board = ({ idx, title, contents, createdDate, writer }) => {
                             menuLIstProps={{
                                 'aria-labelledby': 'menu-button',
                             }}>
-                            <MenuItem onClick={moveToUpdate}><DeleteIcon /> Edit</MenuItem>
-                            <MenuItem onClick={deleteBoard}><EditIcon />Delete</MenuItem>
+                            {parseInt(localUserID) === parseInt(userID) && (
+                                <MenuItem onClick={moveToUpdate}><EditIcon /> Edit</MenuItem>
+                            )}
+                            {parseInt(localUserID) === parseInt(userID) && (
+                                <MenuItem onClick={deleteBoard}><DeleteIcon />Delete</MenuItem>
+                            )}
                             <MenuItem onClick={reportBoard}><ReportIcon />Report</MenuItem>
                         </StyledMenu>
                     </Grid>
