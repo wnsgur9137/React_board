@@ -51,6 +51,7 @@ const BoardDetail = () => {
                         title={board.title}
                         contents={board.contents}
                         createdDate={board.createdDate}
+                        writer={board.writer}
                     />
                 )}
             </Container>

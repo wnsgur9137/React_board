@@ -4,14 +4,17 @@ import PropTypes from 'prop-types';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import SearchIcon from '@mui/icons-material/Search';
 import Typography from '@mui/material/Typography';
 // import Link from '@mui/material/Link';
+import SearchIcon from '@mui/icons-material/Search';
 import Sidebar from "./Sidebar/Sidebar";
 import SidebarContents from "./Sidebar/SidebarContents";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookIcon from "@mui/icons-material/Facebook";
+import PersonIcon from "@mui/icons-material/Person";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from '@mui/icons-material/Logout';
 import Grid from "@mui/material/Grid";
 
 const sidebar = {
@@ -76,12 +79,12 @@ function Header(props) {
                 <Button size="small" onClick={moveToBoardList}>Board</Button>
                 <Sidebar id="sidebar" width={320}>
                     {!userID && (
-                        <Button variant="outlined" size="small" onClick={moveToSignIn}>
+                        <Button variant="outlined" size="small" endIcon={<LoginIcon />} onClick={moveToSignIn}>
                             Sign in
                         </Button>
                     )}
                     {userID && (
-                        <Button variant="outlined" size="small" onClick={SignOut}>
+                        <Button variant="outlined" size="small" endIcon={<LogoutIcon />} onClick={SignOut}>
                             Sign out
                         </Button>
                     )}
@@ -109,22 +112,23 @@ function Header(props) {
                 <Grid container
                       spacing={2}
                       columns={{ xs: 4, md: 12 }}
-                      justifyContent="flex-end">
+                      justifyContent="flex-end"
+                      alignItems="center">
                     <Grid item>
                     {!userID && (
-                        <Button variant="outlined" size="small" onClick={moveToSignUp}>
+                        <Button variant="outlined" size="small" endIcon={<LoginIcon />} onClick={moveToSignUp}>
                             Sign up
                         </Button>
                     )}
                     </Grid>
-                    <Grid item>
                     {nickname && (
-                        <Typography>{nickname}</Typography>
+                        <Grid item>
+                            <Typography>{nickname}</Typography>
+                        </Grid>
                     )}
-                    </Grid>
                     <Grid item>
                     {userID && (
-                        <Button variant="outlined" size="small">
+                        <Button variant="outlined" size="small" startIcon={<PersonIcon />}>
                             Edit Information
                         </Button>
                     )}
@@ -152,18 +156,3 @@ Header.propTypes = {
 };
 
 export default Header;
-
-// const Header = () => {
-//     return (
-//         <header>
-//             <a href="/">Home</a>
-//             &nbsp;&nbsp; | &nbsp;&nbsp;
-//             <a href="/board">Board</a>
-//             &nbsp;&nbsp; | &nbsp;&nbsp;
-//             <a href="/signIn">SignIn</a>
-//             <hr/>
-//         </header>
-//     );
-// };
-//
-// export default Header;

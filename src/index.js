@@ -5,6 +5,7 @@ import {BrowserRouter} from "react-router-dom";
 import App from './App';
 import Header from "./layout/Heder";
 import Footer from "./layout/Footer";
+import TabBar from "./layout/TabBar";
 
 const sections = [
     { title: 'Technology', url: '#' },
@@ -25,5 +26,8 @@ root.render(
         <Header title="Blog" sections={sections}/>
         <App/>
         <Footer title="Footer" description="Something here to give the footer a purpose!"/>
+        {!window.matchMedia("(min-width: 1024px)").matches && (
+            <TabBar />
+        )}
     </BrowserRouter>
 );

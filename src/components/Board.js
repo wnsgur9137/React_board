@@ -9,10 +9,14 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Typography from "@mui/material/Typography";
 import {Menu, MenuItem} from "@mui/material";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import ReportIcon from '@mui/icons-material/Report'
+import {StyledMenu} from "./CustomStyle/Menu";
 
 const defaultTheme = createTheme();
 
-const Board = ({ idx, title, contents, createdDate }) => {
+const Board = ({ idx, title, contents, createdDate, writer }) => {
     const navigate = useNavigate()
     const [anchorEl, setAnchorEl] = useState(null);
     const isOpenMenu = Boolean(anchorEl);
@@ -37,8 +41,8 @@ const Board = ({ idx, title, contents, createdDate }) => {
         navigate('/update/' + idx);
     };
 
-    const moveToList = () => {
-        navigate('/board');
+    const reportBoard = () => {
+        alert('신고되었습니다.');
     };
 
     return (
@@ -62,21 +66,26 @@ const Board = ({ idx, title, contents, createdDate }) => {
                             >
                             EDIT
                         </Button>
-                        <Menu
+                        <StyledMenu
                             id={"edit-menu"}
                             anchorEl={anchorEl}
                             open={isOpenMenu}
                             onClose={menuClose}
+                            endIcon={<KeyboardArrowDownIcon />}
                             menuLIstProps={{
                                 'aria-labelledby': 'menu-button',
-                            }}
-                            >
-                            <MenuItem onClick={moveToUpdate}>Edit</MenuItem>
-                            <MenuItem onClick={deleteBoard}>Delete</MenuItem>
-                            <MenuItem onClick={moveToList}>List</MenuItem>
-                        </Menu>
+                            }}>
+                            <MenuItem onClick={moveToUpdate}><DeleteIcon /> Edit</MenuItem>
+                            <MenuItem onClick={deleteBoard}><EditIcon />Delete</MenuItem>
+                            <MenuItem onClick={reportBoard}><ReportIcon />Report</MenuItem>
+                        </StyledMenu>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item container xs={6} justifyContent="flex-front" alignItems="center">
+                        <Typography variant="subtitle1" component="h2">
+                            {writer}
+                        </Typography>
+                    </Grid>
+                    <Grid item container xs={6} justifyContent="flex-end" alignItems="center">
                         <Typography variant="subtitle2" component="h2">
                             {createdDate}
                         </Typography>
