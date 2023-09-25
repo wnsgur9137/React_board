@@ -7,9 +7,35 @@ import Chart from 'chart.js/auto';
 import { Line } from "react-chartjs-2";
 
 const ChartMock = ({ chartData }) => {
+    let min = 100
+    let max = 0
+    chartData['datasets'].forEach((dataset) => {
+        dataset['data'].forEach((data) => {
+            if (min > parseInt(data)) {
+                min = data
+            }
+            if (max < parseInt(data)) {
+                max = data
+            }
+        })
+    })
+    const options = {
+        scales: {
+            y: {
+                beginAtZero: true,
+                min: parseInt(min <= 20 ? 0 : min - 3),
+                max: parseInt(max + 3),
+                stepSize: 10,
+            },
+            y1: {
+                position: 'right',
+                beginAtZero: true,
+            },
+        },
+    }
     return (
         <Container>
-            <Line type="line" data={chartData} height={150}/>
+            <Line type="line" data={chartData} options={options} height={150}/>
         </Container>
     );
 };
