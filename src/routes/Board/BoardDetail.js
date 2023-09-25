@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Board from '../../components/Board';
 
@@ -13,7 +13,6 @@ const BoardDetail = () => {
     const { boardID } = useParams();
     const [loading, setLoading] = useState(true);
     const [board, setBoard] = useState({});
-    const navigate = useNavigate()
 
     const getBoard = async () => {
         await axios({

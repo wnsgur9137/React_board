@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -61,7 +61,6 @@ export default function SignIn() {
                     alert("회원 정보가 없습니다.")
                     return
                 }
-                // TODO: - save user information
                 localStorage.clear()
                 localStorage.setItem('userID', response.data.userID)
                 localStorage.setItem('nickname', response.data.nickname)
@@ -142,66 +141,3 @@ export default function SignIn() {
         </ThemeProvider>
     );
 }
-
-
-// import React, { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import axios from 'axios';
-//
-// const SignIn = () => {
-//     const navigate = useNavigate()
-//
-//     const [signInInformation, setSignInInformation] = useState({
-//         email: '',
-//         password: '',
-//     });
-//
-//     const { email, password } = signInInformation
-//
-//     const signIn = async () => {
-//         await axios.post('//localhost:3000/users/signIn').then(() => {
-//             alert('로그인되었습니다.');
-//             navigate('/');
-//         });
-//     };
-//
-//     const backToHome = () => {
-//         navigate('/home');
-//     };
-//
-//     const moveToSignUp = () => {
-//         navigate('/signUp');
-//     };
-//
-//     return (
-//         <div>
-//             <div>
-//                 <span>Email</span>
-//                 <input
-//                     type="text"
-//                     name="email"
-//                     value={email}
-//                 />
-//             </div>
-//             <br />
-//             <div>
-//                 <span>Password</span>
-//                 <input
-//                     type="password"
-//                     name="password"
-//                     value={password}
-//                 />
-//             </div>
-//             <br />
-//             <div>
-//                 <button onClick={signIn}>SignIn</button>
-//             </div>
-//             <br />
-//             <br />
-//             <div>
-//                 <button onClick={moveToSignUp}>signUp</button>
-//             </div>
-//         </div>
-//     )
-// }
-// export default SignIn;

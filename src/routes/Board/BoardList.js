@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline'
@@ -10,7 +10,6 @@ import FeaturedPost from "../../components/FeaturedPost";
 import {ButtonGroup, MenuItem, Select} from "@mui/material";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import Divider from "@mui/material/Divider";
 
 const defaultTheme = createTheme();
 

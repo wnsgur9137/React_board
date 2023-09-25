@@ -10,8 +10,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import Sidebar from "./Sidebar/Sidebar";
 import SidebarContents from "./Sidebar/SidebarContents";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
 import PersonIcon from "@mui/icons-material/Person";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -36,8 +35,7 @@ const sidebar = {
     ],
     social: [
         { name: 'GitHub', icon: GitHubIcon },
-        { name: 'Twitter', icon: TwitterIcon },
-        { name: 'Facebook', icon: FacebookIcon },
+        { name: 'Instagram', icon: InstagramIcon },
     ],
 };
 
