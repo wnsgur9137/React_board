@@ -221,7 +221,7 @@ const BoardList = () => {
                                     <Button disabled={parseInt(page) === 1} variant="contained" size="small" value={'first'} onClick={didChangePage}>&lt;&lt;</Button>
                                     <Button disabled={parseInt(page) === 1} variant="contained" size="small" value={'prevent'} onClick={didChangePage}>&lt;</Button>
                                     {adjacentPageList.map((pageNumber, index) => (
-                                        <Button value={pageNumber} disabled={parseInt(page) == pageNumber ? true : false} size="small" onClick={onClickPageNumber}>{pageNumber}</Button>
+                                        <Button value={pageNumber} disabled={parseInt(page) === pageNumber} size="small" onClick={onClickPageNumber}>{pageNumber}</Button>
                                     ))}
                                     <Button disabled={parseInt(page) === allPageList.slice(-1)[0] || allPageList.length === 0} variant="contained" size="small" value={'next'} onClick={didChangePage}>&gt;</Button>
                                     <Button disabled={parseInt(page) === allPageList.slice(-1)[0] || allPageList.length === 0} variant="contained" size="small" value={'last'} onClick={didChangePage}>&gt;&gt;</Button>

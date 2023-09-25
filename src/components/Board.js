@@ -14,11 +14,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import ReportIcon from '@mui/icons-material/Report'
 import {StyledMenu} from "./CustomStyle/Menu";
 
+import AlertWithTextField from "./AlertWithTextField";
+
 const defaultTheme = createTheme();
 
 const Board = ({ boardID, title, contents, createdDate, writer, userID }) => {
     const navigate = useNavigate()
     const [anchorEl, setAnchorEl] = useState(null);
+    const [isAlertOpen, setAlertOpen] = useState(false);
     const isOpenMenu = Boolean(anchorEl);
     const localUserID = localStorage.getItem("userID") || null;
 
@@ -53,12 +56,16 @@ const Board = ({ boardID, title, contents, createdDate, writer, userID }) => {
     };
 
     const reportBoard = () => {
-        alert('신고되었습니다.');
+        setAlertOpen(true);
     };
 
     return (
         <ThemeProvider theme={defaultTheme}>
             <Container component="main" maxWidth="sm">
+                {isAlertOpen && <AlertWithTextField
+                    title={"Report"}
+                    description={"Description"}
+                    completedMessage={"신고되었습니다."} />}
                 <Grid container spacing={3}>
                     <Grid item xs={9}>
                         <Typography variant="h2" component="h2" xs={12}>
