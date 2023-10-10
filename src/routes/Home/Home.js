@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {useEffect, useState} from "react";
-import axios from "axios";
 
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
@@ -8,9 +7,10 @@ import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import MainFeaturedPost from '../../components/MainFeaturedPost';
-import FeaturedPost from '../../components/FeaturedPost';
-import Chart from '../../components/LineChart';
+import MainFeaturedPost from '../../components/Presentation/MainFeaturedPost';
+import FeaturedPost from '../../components/Presentation/FeaturedPost';
+import Chart from '../../components/Presentation/LineChart';
+import Network, {httpMethod} from "../../components/Infrastructure/Network";
 
 const defaultMainFeaturedPost = {
     boardID: 0,
@@ -82,13 +82,12 @@ export default function Blog() {
     const [swapChartData, setSwapChartData] = useState(defaultChartData);
 
     const loadBoards = async () => {
-        // return
-        await axios({
-            method: "get",
-            url: "/reactBoard/boards/main"
-        }).then((response) => {
-            console.log(response.data);
-            const jsonArray = response.data;
+        Network({
+            httpMethod: httpMethod.get,
+            url: '/reactBoard/boards/main'
+        }).then((result) => {
+            console.log(result);
+            const jsonArray = result;
             const test = []
             for (var i = 0; i < 3; i++) {
                 if (i === 0) {
@@ -136,11 +135,11 @@ export default function Blog() {
     }
 
     const loadServerSensors = async() => {
-        await axios({
-            method: "get",
-            url: "/reactBoard/sensor-mock"
-        }).then((response) => {
-            const jsonArray = response.data;
+        Network({
+            httpMethod: httpMethod.get,
+            url: '/reactBoard/sensor-mock'
+        }).then((result) => {
+            const jsonArray = result;
 
             // label key
             const appleSmcLabelKeys = [];
@@ -227,11 +226,11 @@ export default function Blog() {
     }
 
     const loadServerMemory = async() => {
-        await axios({
-            method: "get",
-            url: "/reactBoard/memory-mock"
-        }).then((response) => {
-            const jsonArray = response.data;
+        Network({
+            httpMethod: httpMethod.get,
+            url: '/reactBoard/memory-mock'
+        }).then((result) => {
+            const jsonArray = result;
 
             const memoryLabelKeys = [];
             const swapLabelKeys = [];

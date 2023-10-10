@@ -1,6 +1,5 @@
 import React, {useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
 import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
@@ -8,6 +7,7 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import {createTheme, ThemeProvider} from "@mui/material/styles";
+import Network, {httpMethod} from "../../components/Infrastructure/Network";
 
 const defaultTheme = createTheme();
 
@@ -37,48 +37,50 @@ const BoardUpdate = () => {
     };
 
     const loadBoard = async () => {
-        await axios({
-            method: 'get',
+        Network({
+            httpMethod: httpMethod.get,
             url: `/reactBoard/boards/${boardID}`
-        }).then((response) => {
-            console.log(response.data)
-            const currentDateTime = new Date(response.data.createdDate.replace('/', '-').replace('/', '-').replace(/ /g, 'T')+'Z')
+        }).then((result) => {
+            console.log(result)
+            const currentDateTime = new Date(result.createdDate.replace('/', '-').replace('/', '-').replace(/ /g, 'T')+'Z')
             const koreanDateTime = currentDateTime.toLocaleString('ko-KR', {
                 timeZone: 'Asia/Seoul',
             });
             const boardData = {
-                boardID: response.data.boardID,
-                userID: response.data.userID,
-                writer: response.data.writer,
-                title: response.data.title,
-                contents: response.data.contents,
+                boardID: result.boardID,
+                userID: result.userID,
+                writer: result.writer,
+                title: result.title,
+                contents: result.contents,
                 createdDate: koreanDateTime
             };
             setBoard(boardData);
             setOriginalContents({
-                title: response.data.title,
-                contents: response.data.contents
+                title: result.title,
+                contents: result.contents
             });
-        });
+        }).catch((error) => {
+            alert('Error: ', error)
+        })
     };
 
     const updateBoard = async () => {
-        await axios({
-            method: "post",
-            url: "/reactBoard/boards/update",
-            data: {
+        Network({
+            httpMethod: httpMethod.post,
+            url: '/reactBoard/boards/update',
+            parameter: {
                 board_id: board.boardID,
                 title: board.title,
                 contents: board.contents,
                 user_id: userID
             }
-        }).then((response) => {
-            if (response.data["Error"]) {
+        }).then((result) => {
+            if (result["Error"]) {
                 alert("수정에 실패하였습니다.\n다시 시도해주세요.");
-                console.log(response.data["Error"])
+                console.log(result["Error"])
                 return
             }
-            console.log(response.data)
+            console.log(result)
             backToDetail();
         }).catch((error) => {
             alert(`수정에 실패하였습니다.\nerror: ${error}`)

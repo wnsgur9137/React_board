@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -13,6 +12,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Network, {httpMethod} from "../../components/Infrastructure/Network";
 
 function Copyright(props) {
     return (
@@ -58,22 +58,20 @@ export default function SignUp() {
     const handleSubmit = async(event) => {
         event.preventDefault();
 
-        try {
-            await axios({
-                method: "post",
-                url: "/reactBoard/users/signup",
-                data: {
-                    email: email,
-                    nickname: nickname,
-                    password: password
-                },
-            }).then((response) => {
-                alert('등록되었습니다.');
-                moveToSignIn();
-            });
-        } catch (error) {
+        Network({
+            httpMethod: httpMethod.post,
+            url: '/reactBoard/users/signup',
+            parameter: {
+                email: email,
+                nickname: nickname,
+                password: password
+            }
+        }).then((result) => {
+            alert('등록되었습니다.');
+            moveToSignIn();
+        }).catch((error) => {
             alert(`회원가입에 실패하였습니다.\n ${error}`);
-        }
+        })
     };
 
     const onChangeSignUpInformation = (event) => {
@@ -146,11 +144,11 @@ export default function SignUp() {
             alert("닉네임을 입력해주세요");
             return
         }
-        axios({
-            method: "get",
-            url: "/reactBoard/users/duplicated/nickname/" + nickname,
-        }).then((response) => {
-            if (response.data.duplicated === false) {
+        Network({
+            httpMethod: httpMethod.get,
+            url: `/reactBoard/users/duplicated/nickname/${nickname}`
+        }).then((result) => {
+            if (result.duplicated === false) {
                 setNicknameTextFieldError(true);
                 setNicknameTextFieldColor('');
                 setNicknameTextFieldHelperText('중복된 닉네임입니다.');
@@ -170,11 +168,11 @@ export default function SignUp() {
             alert("이메일을 입력해주세요");
             return
         }
-        axios({
-            method: "get",
-            url: "/reactBoard/users/duplicated/email/" + email,
-        }).then((response) => {
-            if (response.data.duplicated === false) {
+        Network({
+            httpMethod: httpMethod.get,
+            url: `/reactBoard/users/duplicated/email/${email}`,
+        }).then((result) => {
+            if (result.duplicated === false) {
                 setEmailTextFieldError(true);
                 setEmailTextFieldColor('');
                 setEmailTextFieldHelperText('중복된 이메일입니다.');

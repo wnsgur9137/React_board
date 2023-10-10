@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
@@ -12,9 +11,10 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ReportIcon from '@mui/icons-material/Report'
-import {StyledMenu} from "./CustomStyle/Menu";
+import {StyledMenu} from "../CustomStyle/Menu";
 
 import AlertWithTextField from "./AlertWithTextField";
+import Network, {httpMethod} from "../Infrastructure/Network";
 
 const defaultTheme = createTheme();
 
@@ -27,20 +27,19 @@ const Board = ({ boardID, title, contents, createdDate, writer, userID }) => {
 
     const deleteBoard = async () => {
         if (window.confirm('게시글을 삭제하시겠습니까?')) {
-            await axios({
-                method: "delete",
-                url: `/reactBoard/boards/delete/${userID}/${boardID}`,
-            }).then((response) => {
-                if (response.data["Error"]) {
+            Network({
+                httpMethod: httpMethod.delete,
+                url: `/reactBoard/borads/delete/${userID}/${boardID}`,
+            }).then((result) => {
+                if (result["Error"]) {
                     alert(`삭제에 실패하였습니다.\n다시 시도해주세요.`)
                     return
                 }
                 alert('삭제되었습니다.');
-                console.log(response.data)
                 navigate('/board');
             }).catch((error) => {
                 alert(`삭제에 실패하였습니다.\n${error}`)
-            });
+            })
         }
     };
 

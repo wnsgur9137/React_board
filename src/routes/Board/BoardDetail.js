@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import Board from '../../components/Board';
+import Board from '../../components/Presentation/Board';
 
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Network, {httpMethod} from "../../components/Infrastructure/Network";
 
 
 const defaultTheme = createTheme();
@@ -15,21 +15,20 @@ const BoardDetail = () => {
     const [board, setBoard] = useState({});
 
     const getBoard = async () => {
-        await axios({
-            method: 'get',
+        Network({
+            httpMethod: httpMethod.get,
             url: `/reactBoard/boards/${boardID}`
-        }).then((response) => {
-            console.log(response.data)
-            const currentDateTime = new Date(response.data.createdDate.replace('/', '-').replace('/', '-').replace(/ /g, 'T')+'Z')
+        }).then((result) => {
+            const currentDateTime = new Date(result.createdDate.replace('/', '-').replace('/', '-').replace(/ /g, 'T')+'Z')
             const koreanDateTime = currentDateTime.toLocaleString('ko-KR', {
                 timeZone: 'Asia/Seoul',
             });
             const boardData = {
-                boardID: response.data.boardID,
-                userID: response.data.userID,
-                writer: response.data.writer,
-                title: response.data.title,
-                contents: response.data.contents,
+                boardID: result.boardID,
+                userID: result.userID,
+                writer: result.writer,
+                title: result.title,
+                contents: result.contents,
                 createdDate: koreanDateTime
             }
             setBoard(boardData);

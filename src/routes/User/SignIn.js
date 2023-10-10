@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -15,6 +14,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Network, {httpMethod} from "../../components/Infrastructure/Network";
 
 function Copyright(props) {
     return (
@@ -48,27 +48,25 @@ export default function SignIn() {
             alert("로그인 정보를 입력해주세요");
         }
 
-        try {
-            await axios({
-                method: "post",
-                url: "/reactBoard/users/signin",
-                data: {
-                    email: data.get('email'),
-                    password: data.get('password'),
-                },
-            }).then((response) => {
-                if (typeof response.data.error !== 'undefined') {
-                    alert("회원 정보가 없습니다.")
-                    return
-                }
-                localStorage.clear()
-                localStorage.setItem('userID', response.data.userID)
-                localStorage.setItem('nickname', response.data.nickname)
-                navigate('/')
-            })
-        } catch (error) {
+        Network({
+            httpMethod: httpMethod.post,
+            url: '/reactBoard/users/signin',
+            parameter: {
+                email: data.get('email'),
+                password: data.get('password'),
+            }
+        }).then((result) => {
+            if (typeof result.error !== 'undefined') {
+                alert("회원 정보가 없습니다.")
+                return
+            }
+            localStorage.clear()
+            localStorage.setItem('userID', result.userID)
+            localStorage.setItem('nickname', result.nickname)
+            navigate('/')
+        }).catch((error) => {
             alert('Signin Error: ' + error)
-        }
+        })
     };
 
     return (

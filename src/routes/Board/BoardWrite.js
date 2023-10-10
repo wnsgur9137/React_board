@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {createTheme, ThemeProvider} from "@mui/material/styles";
 import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -8,6 +7,7 @@ import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Network, {httpMethod} from "../../components/Infrastructure/Network";
 
 const defaultTheme = createTheme();
 
@@ -30,23 +30,21 @@ const BoardWrite = () => {
     };
 
     const saveBoard = async () => {
-        try {
-            await axios({
-                method: "post",
-                url: '/reactBoard/boards',
-                data: {
-                    title: board.title,
-                    contents: board.contents,
-                    writer: nickname,
-                    user_id: userID
-                }
-                }).then((response) => {
-                    const url = `/board/${response.data.boardID}`
-                    navigate(url)
-                })
-        } catch (error) {
-            alert(`등록에 실패하였습니다.\n${error}`);
-        }
+        Network({
+            httpMethod: httpMethod.post,
+            url: '/reactBoard/boards',
+            parameter: {
+                title: board.title,
+                contents: board.contents,
+                writer: nickname,
+                user_id: userID
+            }
+        }).then((result) => {
+            const url = `/board/${result.data.boardID}`
+            navigate(url)
+        }).catch((error) => {
+            alert(`등록에 실패하였습니다.${error}`)
+        })
     };
 
     useEffect(() => {

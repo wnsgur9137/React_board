@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline'
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import FeaturedPost from "../../components/FeaturedPost";
+import FeaturedPost from "../../components/Presentation/FeaturedPost";
 import {ButtonGroup, MenuItem, Select} from "@mui/material";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import Network, {httpMethod} from "../../components/Infrastructure/Network";
 
 const defaultTheme = createTheme();
 
@@ -47,12 +47,12 @@ const BoardList = () => {
     const [adjacentPageList, setAdjacentPageList] = useState([]);
 
     const loadBoards = async () => {
-        await axios({
-            method: "get",
+        Network({
+            httpMethod: httpMethod.get,
             url: `/reactBoard/boards?page=${page}&limit=${limit}&keyword=${keyword}&filter=${filter}&writer=${writer}`,
-        }).then((response) => {
-            console.log(response.data) // TEST
-            const jsonArray = response.data;
+        }).then((result) => {
+            console.log(result) // TEST
+            const jsonArray = result;
             const temp = []
             for (let i=1; i<=Math.ceil((jsonArray.count / limit)); i++) {
                 temp.push(i)
@@ -72,7 +72,7 @@ const BoardList = () => {
                 boardItems.push(item);
             });
             setFeaturedPosts(boardItems)
-        }).catch(error => {
+        }).catch((error) => {
             alert(`Error: Server error ${error}`)
         });
     };
