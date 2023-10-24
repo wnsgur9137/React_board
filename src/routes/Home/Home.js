@@ -11,6 +11,7 @@ import MainFeaturedPost from '../../components/Presentation/MainFeaturedPost';
 import FeaturedPost from '../../components/Presentation/FeaturedPost';
 import Chart from '../../components/Presentation/LineChart';
 import Network, {httpMethod} from "../../components/Infrastructure/Network";
+import TableComponent from "../../components/Presentation/TableComponent.js";
 
 const defaultMainFeaturedPost = {
     boardID: 0,
@@ -80,6 +81,48 @@ export default function Blog() {
     const [sensorChartData, setSensorChartData] = useState(defaultChartData);
     const [memoryChartData, setMemoryChartData] = useState(defaultChartData);
     const [swapChartData, setSwapChartData] = useState(defaultChartData);
+    const [tableHeader, setTableHeader] = useState([
+        'Title', 'Average'
+    ]);
+    const [tableData, setTableData] = useState([
+        {
+            title: 'Sensor Temperature',
+            avg: '50.0',
+            type: 'temp',
+            subTableHeader: ['Sensor'],
+            subTableData: [
+                ['2023-01-01', '50.0', '50.0', '50.0', '50.0'],
+                ['2023-01-01', '50.0', '50.0', '50.0', '50.0'],
+            ]
+        },
+        {
+            title: 'Core Temperature',
+            avg: '50.0',
+            type: 'temp',
+            subTableHeader: ['Core'],
+            subTableData: [
+                ['2023-01-01', '50.0', '50.0', '50.0', '50.0'],
+            ]
+        },
+        {
+            title: 'memory',
+            avg: '8.0',
+            type: 'memory',
+            subTableHeader: [''],
+            subTableData: [
+                ['2023-01-01', '50.0', '50.0', '50.0', '50.0'],
+            ]
+        },
+        {
+            title: 'Swap Memory',
+            avg: '2.0',
+            type: 'memory',
+            subTableHeader: [''],
+            subTableData: [
+                ['2023-01-01', '50.0', '50.0', '50.0', '50.0'],
+            ]
+        }
+    ]);
 
     const loadBoards = async () => {
         Network({
@@ -146,6 +189,7 @@ export default function Blog() {
             const coreTempLabelKeys = [];
             const appleSmcItems = jsonArray.sensorQueue[0]["applesmc-isa-0300"]["Adapter: ISA adapter"];
             const coreTempItems = jsonArray.sensorQueue[0]["coretemp-isa-0000"]["Adapter: ISA adapter"];
+
             for (const key in appleSmcItems) {
                 appleSmcLabelKeys.push(key);
             }
@@ -157,38 +201,76 @@ export default function Blog() {
             const chartLabels = [];
             const sensorDataDictionary = {};
             const coreTempDataDictionary = {};
+            const appleSmcTableItems = [];
+            const dumpAppleSmcTableItems = [];
+            const coreTempTableItems = [];
+            const dumpCoreTempTableItems = [];
+            const appleSmcTemps = [];
+            const coreTemps = [];
             jsonArray.sensorQueue.forEach((response) => {
                 // chartLabel
                 const currentDateTime = new Date(response["date"].replace('/', '-').replace('/', '-').replace(/ /g, 'T')+'Z')
                 const koreanDateTime = currentDateTime.toLocaleTimeString('ko-KR', {
                     timeZone: 'Asia/Seoul',
                 });
-                const response_date = response["date"].split(' ')[1];
                 chartLabels.push(koreanDateTime);
+                tableData[0]['subTableHeader'].push(koreanDateTime);
+                tableData[1]['subTableHeader'].push(koreanDateTime);
 
                 // apple smc items
                 const applesmcItems = response["applesmc-isa-0300"]["Adapter: ISA adapter"];
+
                 for (const key in applesmcItems) {
                     if (!sensorDataDictionary[key]) {
                         sensorDataDictionary[key] = [];
                     }
+                    if (!dumpAppleSmcTableItems[key]) {
+                        dumpAppleSmcTableItems[key] = [];
+                    }
                     sensorDataDictionary[key].push(parseFloat(applesmcItems[key]));
+                    dumpAppleSmcTableItems[key].push(parseFloat(applesmcItems[key]));
+                    appleSmcTemps.push(parseFloat(applesmcItems[key]))
                 }
 
                 // core temp items
                 const coreTempItems = response["coretemp-isa-0000"]["Adapter: ISA adapter"];
+
                 for (const key in coreTempItems) {
                     if (!coreTempDataDictionary[key]) {
                         coreTempDataDictionary[key] = [];
+                    }
+                    if (!dumpCoreTempTableItems[key]) {
+                        dumpCoreTempTableItems[key] = [];
                     }
                     const regex = /([\+\-]?\d+\.\d+)/;
                     const match = coreTempItems[key].match(regex);
                     if (match) {
                         const extractedNumber = parseFloat(match[0]);
                         coreTempDataDictionary[key].push(extractedNumber);
+                        dumpCoreTempTableItems[key].push(extractedNumber);
+                        coreTemps.push(parseFloat(extractedNumber))
                     }
                 }
             });
+
+            for (const key in dumpAppleSmcTableItems) {
+                dumpAppleSmcTableItems[key].unshift(key)
+                appleSmcTableItems.push(dumpAppleSmcTableItems[key]);
+            }
+
+            for (const key in dumpCoreTempTableItems) {
+                dumpCoreTempTableItems[key].unshift(key)
+                coreTempTableItems.push(dumpCoreTempTableItems[key])
+            }
+
+            let sumAppleSmcTemp = appleSmcTemps.reduce((acc, curr) => acc + curr, 0);
+            let sumCoreTemp = coreTemps.reduce((acc, curr) => acc + curr, 0);
+
+            tableData[0].avg = (parseFloat(sumAppleSmcTemp) / parseFloat(appleSmcTemps.length)).toFixed(1);
+            tableData[1].avg = (parseFloat(sumCoreTemp) / parseFloat(coreTemps.length)).toFixed(1);
+
+            tableData[0]['subTableData'] = appleSmcTableItems;
+            tableData[1]['subTableData'] = coreTempTableItems;
 
             const sensorChartData = {
                 labels: chartLabels,
@@ -245,6 +327,12 @@ export default function Blog() {
             const chartLabels = [];
             const memoryDataDictionary = {};
             const swapDataDictionary = {};
+            const memoryTableItems = [];
+            const swapTableItems = [];
+            const dumpMemoryTableItems = [];
+            const dumpSwapTableItems = [];
+            const memorys = [];
+            const swapMemorys = [];
             jsonArray.memoryQueue.forEach((response) => {
                 // chartLabel
                 const currentDateTime = new Date(response["date"].replace('/', '-').replace('/', '-').replace(/ /g, 'T')+'Z')
@@ -252,6 +340,8 @@ export default function Blog() {
                     timeZone: 'Asia/Seoul',
                 });
                 chartLabels.push(koreanDateTime);
+                tableData[2]['subTableHeader'].push(koreanDateTime)
+                tableData[3]['subTableHeader'].push(koreanDateTime)
 
                 // memory information items
                 const memoryItems = response["memory"];
@@ -259,11 +349,16 @@ export default function Blog() {
                     if (!memoryDataDictionary[key]) {
                         memoryDataDictionary[key] = [];
                     }
+                    if (!dumpMemoryTableItems[key]) {
+                        dumpMemoryTableItems[key] = [];
+                    }
                     let value = memoryItems[key];
                     if (key === 'available' || key === 'total' || key === 'used') {
                         value = value / 1000 / 1000;
                     }
-                    memoryDataDictionary[key].push(value)
+                    memoryDataDictionary[key].push(value);
+                    dumpMemoryTableItems[key].push(value);
+                    memorys.push(value);
                 }
 
                 // swap memory information items
@@ -272,13 +367,37 @@ export default function Blog() {
                     if (!swapDataDictionary[key]) {
                         swapDataDictionary[key] = [];
                     }
+                    if (!dumpSwapTableItems[key]) {
+                        dumpSwapTableItems[key] = [];
+                    }
                     let value = swapItems[key];
                     if (key === 'available' || key === 'total' || key === 'used') {
                         value = value / 1000 / 1000;
                     }
                     swapDataDictionary[key].push(value);
+                    dumpSwapTableItems[key].push(value);
+                    swapMemorys.push(value);
                 }
             });
+
+            for (const key in dumpMemoryTableItems) {
+                dumpMemoryTableItems[key].unshift(key)
+                memoryTableItems.push(dumpMemoryTableItems[key])
+            }
+
+            for (const key in dumpSwapTableItems) {
+                dumpSwapTableItems[key].unshift(key)
+                swapTableItems.push(dumpSwapTableItems[key])
+            }
+
+            let sumMemory = memorys.reduce((acc, curr) => acc + curr, 0);
+            let sumSwapMemory = swapMemorys.reduce((acc, curr) => acc + curr, 0);
+
+            tableData[2].avg = (parseFloat(sumMemory) / parseFloat(memorys.length)).toFixed(1);
+            tableData[3].avg = (parseFloat(sumSwapMemory) / parseFloat(swapMemorys.length)).toFixed(1);
+
+            tableData[2]['subTableData'] = memoryTableItems;
+            tableData[3]['subTableData'] = swapTableItems;
 
             const memoryChartData = {
                 labels: chartLabels,
@@ -288,7 +407,6 @@ export default function Blog() {
                 labels: chartLabels,
                 datasets: [],
             }
-
             memoryLabelKeys.forEach((key) => {
                 const data = {
                     type: 'line',
@@ -366,6 +484,15 @@ export default function Blog() {
                           sx={{ mt: 3}}>
                         <Divider>SWAP MEMORY USED (MB)</Divider>
                         <Chart id="coreTempChart" chartData={swapChartData} />
+                    </Grid>
+                    <Divider />
+                    <Grid container
+                          direction="column"
+                          justifyContent="center"
+                          alignItems="center"
+                          spacig={4}
+                          sx={{ mt: 3}}>
+                        <TableComponent tableHeader={tableHeader} tableData={tableData} />
                     </Grid>
                     <Divider />
                     <Grid container spacing={4} sx={{ mt: 3 }}>
