@@ -10,10 +10,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import Sidebar from "./Sidebar/Sidebar";
 import SidebarContents from "./Sidebar/SidebarContents";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import InstagramIcon from "@mui/icons-material/Instagram";
 import PersonIcon from "@mui/icons-material/Person";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from '@mui/icons-material/Logout';
+import HomeIcon from '@mui/icons-material/Home';
 import Grid from "@mui/material/Grid";
 
 const sidebar = {
@@ -34,8 +34,8 @@ const sidebar = {
         { title: 'April 1999', url: '#' },
     ],
     social: [
-        { name: 'GitHub', icon: GitHubIcon },
-        { name: 'Instagram', icon: InstagramIcon },
+        { name: 'GitHub', icon: GitHubIcon, url: 'https://github.com/wnsgur9137' },
+        { name: 'Blog', icon: HomeIcon, url: 'https://medium.com/@junhyeok9137' },
     ],
 };
 
@@ -60,6 +60,10 @@ function Header(props) {
         navigate('/signIn');
         window.location.reload();
     };
+
+    const moveToMyInfo = () => {
+        navigate('/myInfo');
+    }
 
     const SignOut = () => {
         const userConfirmed = window.confirm("로그아웃 하시겠습니까?");
@@ -121,13 +125,13 @@ function Header(props) {
                     </Grid>
                     {nickname && (
                         <Grid item>
-                            <Typography>{nickname}</Typography>
+                            <Typography>Welcome {nickname}!</Typography>
                         </Grid>
                     )}
                     <Grid item>
                     {userID && (
-                        <Button variant="outlined" size="small" startIcon={<PersonIcon />}>
-                            Edit Information
+                        <Button variant="outlined" size="small" startIcon={<PersonIcon />} onClick={moveToMyInfo}>
+                            MY Info
                         </Button>
                     )}
                     </Grid>

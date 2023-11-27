@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {Route, Routes} from "react-router-dom";
 
 import Home from "./routes/Home/Home"
@@ -8,6 +8,7 @@ import BoardWrite from "./routes/Board/BoardWrite";
 import BoardUpdate from "./routes/Board/BoardUpdate";
 import SignIn from "./routes/User/SignIn";
 import SignUp from "./routes/User/SignUp";
+import UserInformation from "./routes/User/UserInformation";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
 
             <Route path="/signIn" element={<SignIn/>}/>
             <Route path="/signUp" element={<SignUp/>}/>
+            <Route path="/myInfo" element={<UserInformation/>}/>
         </Routes>
     );
 }

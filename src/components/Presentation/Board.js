@@ -58,13 +58,46 @@ const Board = ({ boardID, title, contents, createdDate, writer, userID }) => {
         setAlertOpen(true);
     };
 
+    const handleReportClose = () => {
+        if (window.confirm('게시글을 삭제하시겠습니까?')) {
+            Network({
+                httpMethod: httpMethod.delete,
+                url: `/reactBoard/borads/delete/${userID}/${boardID}`,
+            }).then((result) => {
+                if (result["Error"]) {
+                    alert(`삭제에 실패하였습니다.\n다시 시도해주세요.`)
+                    return
+                }
+                alert('삭제되었습니다.');
+                navigate('/board');
+            }).catch((error) => {
+                alert(`삭제에 실패하였습니다.\n${error}`)
+            })
+        }
+    };
+
+    const handleReport = () => {
+        Network({
+            httpMethod: httpMethod.post,
+            url: `/reactBoard/borads/report/${userID}/${boardID}`,
+        }).then((result) => {
+            if (result["Error"]) {
+                alert(`삭제에 실패하였습니다.\n다시 시도해주세요.`)
+                return
+            }
+            navigate('/board');
+        }).catch((error) => {
+            alert(`신고에 실패하였습니다.\n${error}`)
+        })
+    };
+
     return (
         <ThemeProvider theme={defaultTheme}>
             <Container component="main" maxWidth="sm">
                 {isAlertOpen && <AlertWithTextField
                     title={"Report"}
                     description={"Description"}
-                    completedMessage={"신고되었습니다."} />}
+                    handleClose={handleReportClose} />}
                 <Grid container spacing={3}>
                     <Grid item xs={9}>
                         <Typography variant="h2" component="h2" xs={12}>

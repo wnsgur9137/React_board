@@ -4,13 +4,13 @@ import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} fr
 import TextField from "@mui/material/TextField";
 
 
-function AlertWithTextField({ title, description, completedMessage }) {
+function AlertWithTextField({ title, description, completedMessage, handleClose, handleSave }) {
     const [open, setOpen] = useState(true);
     const [textFieldValue, setTextFieldValue] = useState('');
 
-    const handleClose = () => {
-        setOpen(false);
-    };
+    // const handleClose = () => {
+    //     setOpen(false);
+    // };
 
     const didChangeTextField = (event) => {
         setTextFieldValue(event.target.value);
